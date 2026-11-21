@@ -222,13 +222,13 @@
     const solvedAny = tasks.filter((t) => t.pass.some(Boolean)).length;
     const views = [{ id: "all", label: "All agents" }, ...models.map((m, i) => ({ id: i, label: SHORT[i], y: pct(m.pass) }))];
     const ctr = $("#wafer-controls");
-    ctr.innerHTML = views.map((v, i) => `<button class="chip ${i === 0 ? "on" : ""}" data-v="${v.id}">${v.label}${v.y ? `<span class="y">${v.y}%</span>` : ""}</button>`).join("");
+    if (ctr) ctr.innerHTML = views.map((v, i) => `<button class="chip ${i === 0 ? "on" : ""}" data-v="${v.id}">${v.label}${v.y ? `<span class="y">${v.y}%</span>` : ""}</button>`).join("");
 
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
     let run = 0;
     function paint(view) {
       const my = ++run;
-      if (view === "all") {
+      if (!readout) {} else if (view === "all") {
         readout.innerHTML = `Solved by any agent<span class="big">${solvedAny}<small>/94</small></span>${summary.unsolved_by_all} tasks unsolved by all six`;
       } else {
         const m = models[view];
@@ -261,7 +261,7 @@
         step ? setTimeout(apply, s.order * step) : apply();
       });
     }
-    ctr.addEventListener("click", (e) => {
+    if (ctr) ctr.addEventListener("click", (e) => {
       const b = e.target.closest(".chip");
       if (!b) return;
       $$(".chip", ctr).forEach((c) => c.classList.toggle("on", c === b));
