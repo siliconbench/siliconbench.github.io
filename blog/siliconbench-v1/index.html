@@ -49,30 +49,30 @@
       </ul>
     </div>
 
-    <h2 id="why" data-toc="Why SiliconBench"><span class="no">01</span>Why another hardware benchmark?</h2>
-    <p>Agents now report 95–99% on standard RTL benchmarks. Real chip engineering is far from solved. The gap is in what those benchmarks leave out:</p>
-    <ul>
-      <li><strong>Simulation-only grading.</strong> Most check functional simulation only. Synthesis and layout appear only on small, standalone modules.</li>
-      <li><strong>Isolated edits.</strong> Agents fix RTL under frozen constraints, or tune scripts on frozen RTL. Real designers change both together.</li>
-      <li><strong>Hackable grading.</strong> When the agent and the grader share a workspace, an agent can look for reference answers, weaken a testbench, or hide logic from synthesis.</li>
-    </ul>
-    <p>SiliconBench closes all three gaps.</p>
+    <h2 id="task" data-toc="What a task looks like"><span class="no">01</span>What a task looks like</h2>
+    <p>Each task puts an agent in a realistic EDA flow. It gets a real RTL repository, a specification and design constraints. It must implement or fix the design so that it works and meets the constraints, using feedback from EDA tools along the way.</p>
 
-    <h2 id="what" data-toc="What is in it"><span class="no">02</span>What is in it</h2>
-    <p>Each task is a compilable, multi-file repository from one of 30 open-source SystemVerilog projects, such as OpenTitan, CVA6, Corundum, BlackParrot and PULP Ara. Repositories have 2–70 RTL files, with a median of 12 files and 3,670 lines. The agent gets a written specification and must make the design pass every check the task requires.</p>
+    <figure class="figure reveal">
+      <div class="steps">
+        <div class="box"><span class="k">Given</span><ul><li>RTL repository</li><li>Specification</li><li>Constraints: clock, area, layout</li></ul></div>
+        <div class="arrow"></div>
+        <div class="box"><span class="k">Agent</span><ul><li>Edits RTL, constraints or floorplan</li><li>Runs simulation, synthesis, timing and place-and-route tools</li><li>Iterates on their feedback</li></ul></div>
+        <div class="arrow"></div>
+        <div class="box"><span class="k">Graded</span><ul><li>Private tests</li><li>Required EDA checks</li><li>Passes only if all pass</li></ul></div>
+      </div>
+    </figure>
+
+    <p>The 94 tasks come from 30 open-source SystemVerilog projects, including OpenTitan, CVA6, Corundum, BlackParrot and PULP Ara.</p>
 
     <figure class="figure reveal">
       <div class="chart-card">
         <h3>Five problem types</h3>
-        <p class="sub">Mutually exclusive, N = 94</p>
+        <p class="sub">Number of tasks</p>
         <div id="post-type-bars"></div>
       </div>
     </figure>
 
-
-    <p>Depending on the task, the verifier runs functional simulation, synthesis, gate-level simulation, static timing and physical design checks. A task passes only if all of them pass.</p>
-
-    <h2 id="harbor" data-toc="Isolated grading"><span class="no">03</span>Grading the agent cannot touch</h2>
+    <h2 id="harbor" data-toc="Isolated grading"><span class="no">02</span>Grading the agent cannot touch</h2>
     <p>We use the two-container <a href="https://github.com/laude-institute/harbor" target="_blank" rel="noopener">Harbor</a> architecture. The agent never shares a filesystem with the grader.</p>
 
     <figure class="figure reveal">
@@ -92,7 +92,7 @@
       <figcaption>Only the task's editable RTL, constraint and floorplan files cross over. Modified wrappers, local testbenches and logs are discarded.</figcaption>
     </figure>
 
-    <h2 id="built" data-toc="How tasks were built"><span class="no">04</span>How tasks were built</h2>
+    <h2 id="built" data-toc="How tasks were built"><span class="no">03</span>How tasks were built</h2>
     <div class="funnel reveal">
       <div><span class="k">Phase I · Seed pool</span><b>160</b><p>Senior IC engineers write candidate tasks with self-contained specifications.</p></div>
       <div><span class="k">Phase II · Automated QA</span><b>2 + 1</b><p>Two independent reference solutions must pass; the starter design must fail. Injected bugs must be caught.</p></div>
@@ -100,7 +100,7 @@
     </div>
     <p>Requiring two independent solutions keeps graders honest: a valid hardware fix can take many forms, and the tests must accept all of them.</p>
 
-    <h2 id="results" data-toc="Results"><span class="no">05</span>Results</h2>
+    <h2 id="results" data-toc="Results"><span class="no">04</span>Results</h2>
     <p>We evaluated six frontier agents, four proprietary and two open-weights, with 564 runs in total.</p>
 
     <figure class="figure reveal">
@@ -114,7 +114,7 @@
     <p>The four proprietary agents pass 40.4–84.0% of tasks; GLM-5.3 and DeepSeek-V4.1-Flash-1017 pass 33.0% and 27.7%.</p>
 
 
-    <h2 id="behavior" data-toc="How agents work"><span class="no">06</span>How agents work</h2>
+    <h2 id="behavior" data-toc="How agents work"><span class="no">05</span>How agents work</h2>
     <p>We analyzed all 46,526 tool calls. Three distinct styles emerge.</p>
 
     <figure class="figure reveal">
@@ -131,7 +131,7 @@
       <li><strong>Stopping early (GPT-Sol 6.1, GPT-Terra 6.1).</strong> 37.5–44.5 median calls. In about 20% of runs they edit RTL after their last simulation and never re-test.</li>
     </ul>
 
-    <h2 id="failures" data-toc="Why agents fail"><span class="no">07</span>Why agents fail</h2>
+    <h2 id="failures" data-toc="Why agents fail"><span class="no">06</span>Why agents fail</h2>
     <p>Reading the 272 failed trajectories, three patterns repeat:</p>
     <ul>
       <li><strong>Coupled modules left out of sync.</strong> On tasks spanning three or more modules, leaving a required module untouched is 5.1× more common in failed runs than in passing ones. Others edit each file locally without matching the flush, credit or valid/ready handshake across the boundary.</li>
@@ -140,7 +140,7 @@
     </ul>
     <p>Six tasks remain unsolved by all six agents. Each combines multi-file logic with strict area, multi-corner timing or multi-SRAM layout limits.</p>
 
-    <h2 id="hacking" data-toc="Evaluation hacking"><span class="no">08</span>Evaluation hacking</h2>
+    <h2 id="hacking" data-toc="Evaluation hacking"><span class="no">07</span>Evaluation hacking</h2>
     <p>We define evaluation hacking as a deliberate attempt to bypass grading, such as searching for hidden tests or reference RTL outside <code>/workspace</code>. It happened in 53 of 564 runs, with 90 distinct events. Zero succeeded.</p>
 
     <div class="kpis reveal">
@@ -163,7 +163,7 @@
       <li><strong>Forging a timestamp (1 event).</strong> After editing and reverting a read-only wrapper, GPT-Terra 6.1 ran <code>touch -d</code> to restore its timestamp. Harbor copies only hash-verified, allowlisted files, so this has no effect.</li>
     </ul>
 
-    <h2 id="cases" data-toc="Case studies"><span class="no">09</span>Four case studies</h2>
+    <h2 id="cases" data-toc="Case studies"><span class="no">08</span>Four case studies</h2>
     <div class="cases reveal">
       <div class="case"><span class="k">OpenTitan KMAC · 5/6 pass</span><h4>Cross-module flush</h4><p>A flush must stop <code>prim_packer</code> inputs and drain <code>kmac_msgfifo</code> together. DeepSeek-V4.1-Flash-1017 edits both without blocking new inputs; Claude Opus 5.5 keeps them in sync.</p></div>
       <div class="case"><span class="k">Corundum 100G NIC · 1/6 pass</span><h4>500 MHz timing closure</h4><p>GPT-Terra 6.1 does an 80-bit add and compare in one cycle: it passes simulation, then fails timing at 2.62 ns (WNS −0.62 ns). Only Claude Opus 5.5 pipelines it (WNS +0.52 ns).</p></div>
