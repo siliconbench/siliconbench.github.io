@@ -23,6 +23,7 @@
     for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
     return n;
   };
+  const label = (m) => `${m.name} (${m.effort})`;
   const pct = (k, n = 94, d = 1) => ((100 * k) / n).toFixed(d);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const cache = {};
@@ -45,7 +46,7 @@
     const page = document.body.dataset.page || "";
     const links = [
       ["leaderboard", "/leaderboard/", "Leaderboard"],
-      ["explorer", "/explorer/", "Tasks"],
+      ["examples", "/examples/", "Examples"],
       ["blog", "/blog/", "Blog"],
       ["about", "/#about", "About"],
     ];
@@ -73,7 +74,7 @@
           <p class="faint" style="font-size:13.5px;margin:0">Hong Kong University of Science and Technology</p>
         </div>
         <div><h4>Benchmark</h4>
-          <a href="/leaderboard/">Leaderboard</a><a href="/explorer/">Task explorer</a><a href="${REPO}" target="_blank" rel="noopener">Dataset</a>
+          <a href="/leaderboard/">Leaderboard</a><a href="/examples/">Examples</a><a href="${REPO}" target="_blank" rel="noopener">Dataset</a>
         </div>
         <div><h4>Research</h4>
           <a href="/blog/">Blog</a><a href="/blog/siliconbench-v1/">SiliconBench v1.0</a><a href="/assets/papers/siliconbench-v1.0.pdf">Paper (PDF)</a>
@@ -277,7 +278,7 @@
     host.innerHTML = models.map((m, i) => `
       <a class="lb-row" href="/leaderboard/">
         <div class="lb-rank">${String(i + 1).padStart(2, "0")}</div>
-        <div><div class="lb-name">${esc(m.name)}</div>
+        <div><div class="lb-name">${esc(label(m))}</div>
           <div class="lb-org">${esc(m.org)} <span class="tag ${m.access === "open" ? "open" : "prop"}">${m.access === "open" ? "Open weights" : "Proprietary"}</span></div></div>
         <div class="bar ${m.access === "open" ? "open" : ""}"><i data-w="${pct(m.pass)}"></i></div>
         <div class="lb-score">${pct(m.pass)}<small>%</small></div>
@@ -376,7 +377,7 @@
       const rows = [...models].sort((a, b) => dir * (val(a, sortCol) - val(b, sortCol)));
       host.innerHTML = `<table class="data"><thead><tr>${cols.map((c, i) => `<th data-c="${i}" class="${i === sortCol ? "sorted" : ""}">${c[0]}${i === sortCol ? (dir < 0 ? " ↓" : " ↑") : ""}${c[1] ? `<span class="sub">${c[1]}</span>` : ""}</th>`).join("")}</tr></thead><tbody>${rows.map((m) => `<tr>
         <td><span class="rank-badge">${String(models.indexOf(m) + 1).padStart(2, "0")}</span></td>
-        <td><div class="agent-cell"><span class="name">${esc(m.name)}</span><span class="meta">${esc(m.org)} <span class="tag ${m.access === "open" ? "open" : "prop"}">${m.access === "open" ? "Open weights" : "Proprietary"}</span></span></div></td>
+        <td><div class="agent-cell"><span class="name">${esc(label(m))}</span><span class="meta">${esc(m.org)} <span class="tag ${m.access === "open" ? "open" : "prop"}">${m.access === "open" ? "Open weights" : "Proprietary"}</span></span></div></td>
         <td class="num"><span class="cell-bar"><span class="bar ${m.access === "open" ? "open" : ""}"><i style="width:${pct(m.pass)}%"></i></span><span class="hero-num">${pct(m.pass)}%</span><span class="of">${m.pass}/94</span></span></td>
         <td class="num">${m.tool_calls_median.toFixed(1)}</td>
         <td class="num">${pct(m.hack_runs)}%<span class="of">${m.hack_runs}/94</span></td>
@@ -396,7 +397,7 @@
     if (!host) return;
     const [tasks, { models, summary }] = await Promise.all([load("tasks"), load("leaderboard")]);
     const sorted = [...tasks].sort((a, b) => b.pass.reduce((x, y) => x + y) - a.pass.reduce((x, y) => x + y) || a.id.localeCompare(b.id, undefined, { numeric: true }));
-    host.innerHTML = models.map((m, k) => `<div class="matrix-row"><div class="lbl">${esc(m.name)}</div>
+    host.innerHTML = models.map((m, k) => `<div class="matrix-row"><div class="lbl">${esc(label(m))}</div>
       <div class="cells">${sorted.map((t, j) => `<i data-j="${j}" class="${t.pass[k] ? "p" : ""} ${m.access === "open" ? "open" : ""}"></i>`).join("")}</div>
       <div class="val">${m.pass}/94</div></div>`).join("") +
       `<div class="matrix-axis"><div></div><div><span>← solved by all six</span><span>unsolved by all →</span></div><div></div></div>`;
@@ -406,55 +407,19 @@
     host.addEventListener("click", (e) => { const c = e.target.closest(".cells i"); if (c) window.open(`${REPO}/tree/main/tasks/${sorted[+c.dataset.j].id}`, "_blank", "noopener"); });
   }
 
-  /* ---------------- Explorer ---------------- */
-  async function explorer() {
-    const host = $("#tasks");
-    if (!host) return;
-    const [tasks, { models, summary }] = await Promise.all([load("tasks"), load("leaderboard")]);
-    const state = { q: "", type: "all", solved: "all", repo: "all" };
-    const chips = (id, opts) => {
-      const n = $(id);
-      n.insertAdjacentHTML("beforeend", opts.map(([v, l], i) => `<button class="chip ${i === 0 ? "on" : ""}" data-v="${v}">${l}</button>`).join(""));
-      n.addEventListener("click", (e) => {
-        const b = e.target.closest(".chip"); if (!b) return;
-        $$(".chip", n).forEach((c) => c.classList.toggle("on", c === b));
-        state[n.dataset.key] = b.dataset.v; render();
-      });
-    };
-    chips("#f-type", [["all", "All"], ...Object.entries(summary.type_labels).map(([k, v]) => [k, v])]);
-    chips("#f-solved", [["all", "All"], ["none", "Unsolved by all"], ["hard", "Solved by 1–2"], ["every", "Solved by all six"]]);
-    const repoSel = $("#f-repo");
-    repoSel.innerHTML = `<option value="all">All 30 repositories</option>` + summary.repos_list.map(([r, c]) => `<option value="${esc(r)}">${esc(r)} (${c})</option>`).join("");
-    repoSel.addEventListener("change", () => { state.repo = repoSel.value; render(); });
-    $("#q").addEventListener("input", (e) => { state.q = e.target.value.toLowerCase().trim(); render(); });
-    const params = new URLSearchParams(location.search);
-    if (params.get("q")) { $("#q").value = params.get("q"); state.q = params.get("q").toLowerCase(); }
-
-    function render() {
-      const list = tasks.filter((t) => {
-        const k = t.pass.reduce((a, b) => a + b, 0);
-        if (state.type !== "all" && t.type !== state.type) return false;
-        if (state.repo !== "all" && t.repo !== state.repo) return false;
-        if (state.solved === "none" && k !== 0) return false;
-        if (state.solved === "hard" && !(k >= 1 && k <= 2)) return false;
-        if (state.solved === "every" && k !== 6) return false;
-        if (state.q && !(`${t.id} ${t.title} ${t.repo} ${t.editable.join(" ")}`.toLowerCase().includes(state.q))) return false;
-        return true;
-      });
-      $("#count").textContent = `${list.length} of 94 tasks`;
-      host.innerHTML = list.length ? list.map((t) => {
-        const k = t.pass.reduce((a, b) => a + b, 0);
-        return `<a class="task" href="${REPO}/tree/main/tasks/${t.id}" target="_blank" rel="noopener">
-          <div class="top"><span class="id">${t.id}</span><span class="solved">${k}/6 solved</span></div>
-          <h3>${esc(t.title)}</h3>
-          <div class="repo">${esc(t.repo)}</div>
-          <div class="tags"><span>${esc(summary.type_labels[t.type])}</span></div>
-          <div class="bottom"><span class="size">${t.files} files · ${t.loc.toLocaleString()} LOC · ${t.editable.length} editable</span>${dotsHTML(t.pass, models)}</div>
-        </a>`;
-      }).join("") : `<div class="empty">No tasks match these filters.</div>`;
-    }
-    $("#dot-legend").innerHTML = models.map((m, i) => `<span style="display:inline-flex;gap:6px;align-items:center"><i style="width:9px;height:9px;border-radius:2px;background:${m.access === "open" ? "var(--steel)" : "var(--gold)"};display:inline-block"></i>${SHORT[i]}</span>`).join(`<span class="faint">·</span>`);
-    render();
+  /* ---------------- Examples ---------------- */
+  async function examples() {
+    const items = $$(".ex[data-task]");
+    if (!items.length) return;
+    const [tasks, { models }] = await Promise.all([load("tasks"), load("leaderboard")]);
+    items.forEach((n) => {
+      const t = tasks.find((x) => x.id === n.dataset.task);
+      if (!t) return;
+      const k = t.pass.reduce((a, b) => a + b, 0);
+      $(".ex-dots", n).innerHTML = dotsHTML(t.pass, models);
+      $(".ex-count", n).textContent = `Solved by ${k} of 6 agents`;
+      $(".link-arrow", n).href = `${REPO}/tree/main/tasks/${t.id}`;
+    });
   }
 
   /* ---------------- Blog article ---------------- */
@@ -462,12 +427,12 @@
     if (document.body.dataset.page !== "post") return;
     const { models, summary } = await load("leaderboard");
     const pb = $("#post-pass-bars");
-    if (pb) hbars(pb, models.map((m, k) => [m.name, +pct(m.pass), MODEL_COLORS[k]]), { max: 100, unit: "%", fmt: (v) => v.toFixed(1) });
+    if (pb) hbars(pb, models.map((m, k) => [label(m), +pct(m.pass), MODEL_COLORS[k]]), { max: 100, unit: "%", fmt: (v) => v.toFixed(1) });
     const tb = $("#post-type-bars");
     if (tb) hbars(tb, Object.entries(summary.type_counts).map(([k, v]) => [summary.type_labels[k], v]), { max: 40 });
     const sp = $("#post-scatter"); if (sp) scatterChart(sp, models);
     const hb = $("#post-hack-bars");
-    if (hb) hbars(hb, models.map((m, k) => [m.name, +pct(m.hack_runs), MODEL_COLORS[k]]), { max: 40, unit: "%", fmt: (v) => v.toFixed(1) });
+    if (hb) hbars(hb, models.map((m, k) => [label(m), +pct(m.hack_runs), MODEL_COLORS[k]]), { max: 40, unit: "%", fmt: (v) => v.toFixed(1) });
     // TOC scrollspy
     const toc = $(".toc");
     if (toc) {
@@ -499,7 +464,7 @@
     homePosts();
     blogIndex();
     leaderboardPage();
-    explorer();
+    examples();
     article();
   });
 })();

@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Examples — SiliconBench</title>
+  <meta name="description" content="Four real SiliconBench tasks: a cross-module flush, a 500 MHz timing target, SRAM macro placement and an area cap.">
+  <meta property="og:title" content="SiliconBench Examples">
+  <meta property="og:image" content="https://siliconbench.github.io/assets/img/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#08080a">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/Fraunces-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="/assets/css/site.css">
+  <script src="/assets/js/site.js" defer></script>
+</head>
+<body data-page="examples">
+
+<header class="page-head">
+  <div class="wrap">
+    <span class="eyebrow reveal"><span class="dot"></span>SiliconBench v1.0</span>
+    <h1 class="display reveal d1">Examples</h1>
+    <p class="lede reveal d2">Four real tasks from the benchmark. The full set of 94 is on GitHub.</p>
+    <p class="reveal d3" style="margin-top:30px"><a class="btn" href="https://github.com/hkust-zhiyao/SiliconBench/blob/main/TASKS_INDEX.md" target="_blank" rel="noopener">Browse all 94 tasks <span class="arr">→</span></a></p>
+  </div>
+</header>
+
+<section class="wrap ex-list">
+
+  <!-- 1 · OpenTitan KMAC -->
+  <article class="ex reveal" data-task="case_1003">
+    <div class="ex-text">
+      <div class="ex-src">OpenTitan · KMAC</div>
+      <h2>Flush two modules in sync</h2>
+      <p class="ex-goal">A flush must stop new input to the packer and drain the FIFO at the same time. The fix spans two files.</p>
+      <div class="ex-solved"><span class="ex-dots"></span><span class="ex-count"></span></div>
+      <p class="ex-what">DeepSeek-V4.1-Flash-1017 edits both files but keeps accepting input while the FIFO drains. Claude Opus 5.5 blocks input and finishes the flush in both.</p>
+      <a class="link-arrow" target="_blank" rel="noopener">Open task →</a>
+    </div>
+    <figure class="ex-fig">
+      <svg viewBox="0 0 520 300" role="img" aria-label="Flush must block packer input and drain the FIFO together">
+        <g font-family="JetBrains Mono, monospace" font-size="12">
+          <!-- wrong -->
+          <text x="0" y="22" fill="#b9654c" font-family="Inter, sans-serif" font-size="13.5" font-weight="500">✗  Input not blocked</text>
+          <text x="96" y="47" fill="#6d6a63">flush</text>
+          <path d="M140 43 H440 M215 43 V64 M375 43 V64" stroke="#a9a49b" stroke-width="1.3" fill="none"/>
+          <path d="M30 90 H143" stroke="#b9654c" stroke-width="2"/><path d="M143 85 l7 5 -7 5z" fill="#b9654c"/>
+          <text x="34" y="80" fill="#b9654c">new data</text>
+          <rect x="150" y="65" width="130" height="50" rx="6" fill="#141417" stroke="#b9654c" stroke-opacity=".7"/>
+          <text x="215" y="94" text-anchor="middle" fill="#ece8e1">prim_packer</text>
+          <path d="M280 90 H303" stroke="#a9a49b" stroke-width="1.3"/><path d="M303 86 l6 4 -6 4z" fill="#a9a49b"/>
+          <rect x="310" y="65" width="130" height="50" rx="6" fill="#141417" stroke="#6d6a63"/>
+          <text x="375" y="94" text-anchor="middle" fill="#ece8e1">kmac_msgfifo</text>
+          <!-- right -->
+          <text x="0" y="172" fill="#d6b27a" font-family="Inter, sans-serif" font-size="13.5" font-weight="500">✓  Input blocked, both drain</text>
+          <text x="96" y="197" fill="#6d6a63">flush</text>
+          <path d="M140 193 H440 M215 193 V214 M375 193 V214" stroke="#d6b27a" stroke-width="1.3" fill="none"/>
+          <path d="M30 240 H128" stroke="#6d6a63" stroke-width="1.6" stroke-dasharray="4 4"/>
+          <path d="M134 226 V254" stroke="#d6b27a" stroke-width="3"/>
+          <text x="34" y="230" fill="#6d6a63">blocked</text>
+          <rect x="150" y="215" width="130" height="50" rx="6" fill="#141417" stroke="#d6b27a"/>
+          <text x="215" y="244" text-anchor="middle" fill="#ece8e1">prim_packer</text>
+          <path d="M280 240 H303" stroke="#d6b27a" stroke-width="1.3"/><path d="M303 236 l6 4 -6 4z" fill="#d6b27a"/>
+          <rect x="310" y="215" width="130" height="50" rx="6" fill="#141417" stroke="#d6b27a"/>
+          <text x="375" y="244" text-anchor="middle" fill="#ece8e1">kmac_msgfifo</text>
+          <path d="M440 240 H470" stroke="#d6b27a" stroke-width="1.3"/>
+          <text x="474" y="244" fill="#d6b27a">done</text>
+        </g>
+      </svg>
+    </figure>
+  </article>
+
+  <!-- 2 · Corundum timing -->
+  <article class="ex reveal" data-task="case_21005">
+    <div class="ex-text">
+      <div class="ex-src">Corundum · 100G NIC scheduler</div>
+      <h2>Meet a 500 MHz clock</h2>
+      <p class="ex-goal">The scheduler must pass its tests and meet timing with a 2.00 ns clock period.</p>
+      <div class="ex-solved"><span class="ex-dots"></span><span class="ex-count"></span></div>
+      <p class="ex-what">GPT-Terra 6.1 does an 80-bit add and compare in one cycle: correct in simulation, 0.62 ns too slow. Claude Opus 5.5 splits it into two pipeline stages.</p>
+      <a class="link-arrow" target="_blank" rel="noopener">Open task →</a>
+    </div>
+    <figure class="ex-fig">
+      <svg viewBox="0 0 520 250" role="img" aria-label="Path delay versus 2.00 ns clock period">
+        <g font-family="JetBrains Mono, monospace" font-size="12">
+          <path d="M333.3 24 V206" stroke="#ece8e1" stroke-opacity=".55" stroke-width="1.2" stroke-dasharray="4 4"/>
+          <text x="333.3" y="16" text-anchor="middle" fill="#a9a49b">clock 2.00 ns</text>
+          <text x="40" y="58" fill="#ece8e1" font-family="Inter, sans-serif" font-size="13.5">One cycle  <tspan fill="#6d6a63" font-size="12">GPT-Terra 6.1</tspan></text>
+          <rect x="40" y="68" width="293.3" height="30" rx="3" fill="#d6b27a" fill-opacity=".28"/>
+          <rect x="333.3" y="68" width="90.9" height="30" rx="3" fill="#b9654c"/>
+          <text x="432" y="88" fill="#b9654c">2.62 ns ✗</text>
+          <text x="40" y="140" fill="#ece8e1" font-family="Inter, sans-serif" font-size="13.5">Two stages  <tspan fill="#6d6a63" font-size="12">Claude Opus 5.5</tspan></text>
+          <rect x="40" y="150" width="217" height="30" rx="3" fill="#d6b27a"/>
+          <text x="266" y="170" fill="#d6b27a">1.48 ns ✓</text>
+          <path d="M40 214 H480" stroke="#ece8e1" stroke-opacity=".12"/>
+          <text x="40" y="232" text-anchor="middle" fill="#6d6a63">0</text>
+          <text x="186.7" y="232" text-anchor="middle" fill="#6d6a63">1 ns</text>
+          <text x="333.3" y="232" text-anchor="middle" fill="#6d6a63">2 ns</text>
+          <text x="480" y="232" text-anchor="middle" fill="#6d6a63">3 ns</text>
+        </g>
+      </svg>
+    </figure>
+  </article>
+
+  <!-- 3 · BlackParrot macros -->
+  <article class="ex reveal" data-task="case_9014">
+    <div class="ex-text">
+      <div class="ex-src">BlackParrot · 8-SRAM cache tile</div>
+      <h2>Place eight SRAM macros</h2>
+      <p class="ex-goal">Edit the RTL and the macro placement so clock skew stays under 4.00 ps.</p>
+      <div class="ex-solved"><span class="ex-dots"></span><span class="ex-count"></span></div>
+      <p class="ex-what">DeepSeek-V4.1-Flash-1017 leaves every macro upright, so the bottom row's pins face away from the clock (10.84 ps). Claude Opus 5.5 mirrors the bottom row (3.07 ps).</p>
+      <a class="link-arrow" target="_blank" rel="noopener">Open task →</a>
+    </div>
+    <figure class="ex-fig">
+      <svg viewBox="0 0 520 270" role="img" aria-label="SRAM macro orientation and clock skew">
+        <g font-family="JetBrains Mono, monospace" font-size="11">
+          <text x="10" y="18" fill="#b9654c" font-family="Inter, sans-serif" font-size="13.5" font-weight="500">✗  All upright · 10.84 ps</text>
+          <text x="280" y="18" fill="#d6b27a" font-family="Inter, sans-serif" font-size="13.5" font-weight="500">✓  Bottom mirrored · 3.07 ps</text>
+          <!-- wrong panel -->
+          <g>
+            <path d="M10 140 H240" stroke="#d6b27a" stroke-width="2"/>
+            <g fill="#141417" stroke="#6d6a63">
+              <rect x="14" y="60" width="48" height="50" rx="3"/><rect x="72" y="60" width="48" height="50" rx="3"/><rect x="130" y="60" width="48" height="50" rx="3"/><rect x="188" y="60" width="48" height="50" rx="3"/>
+              <rect x="14" y="170" width="48" height="50" rx="3"/><rect x="72" y="170" width="48" height="50" rx="3"/><rect x="130" y="170" width="48" height="50" rx="3"/><rect x="188" y="170" width="48" height="50" rx="3"/>
+            </g>
+            <g fill="#6d6a63" text-anchor="middle"><text x="38" y="89">R0</text><text x="96" y="89">R0</text><text x="154" y="89">R0</text><text x="212" y="89">R0</text><text x="38" y="199">R0</text><text x="96" y="199">R0</text><text x="154" y="199">R0</text><text x="212" y="199">R0</text></g>
+            <g stroke="#d6b27a" stroke-width="1.3"><path d="M38 110 V140 M96 110 V140 M154 110 V140 M212 110 V140"/></g>
+            <g stroke="#b9654c" stroke-width="1.3" fill="none"><path d="M11 140 V230 H38 V220"/><path d="M67 140 V230 H96 V220"/><path d="M125 140 V230 H154 V220"/><path d="M183 140 V230 H212 V220"/></g>
+            <g fill="#ece8e1"><circle cx="38" cy="110" r="3.5"/><circle cx="96" cy="110" r="3.5"/><circle cx="154" cy="110" r="3.5"/><circle cx="212" cy="110" r="3.5"/></g>
+            <g fill="#b9654c"><circle cx="38" cy="220" r="3.5"/><circle cx="96" cy="220" r="3.5"/><circle cx="154" cy="220" r="3.5"/><circle cx="212" cy="220" r="3.5"/></g>
+          </g>
+          <!-- right panel -->
+          <g transform="translate(270 0)">
+            <path d="M10 140 H240" stroke="#d6b27a" stroke-width="2"/>
+            <g fill="#141417" stroke="#d6b27a" stroke-opacity=".8">
+              <rect x="14" y="60" width="48" height="50" rx="3"/><rect x="72" y="60" width="48" height="50" rx="3"/><rect x="130" y="60" width="48" height="50" rx="3"/><rect x="188" y="60" width="48" height="50" rx="3"/>
+              <rect x="14" y="170" width="48" height="50" rx="3"/><rect x="72" y="170" width="48" height="50" rx="3"/><rect x="130" y="170" width="48" height="50" rx="3"/><rect x="188" y="170" width="48" height="50" rx="3"/>
+            </g>
+            <g fill="#6d6a63" text-anchor="middle"><text x="38" y="89">R0</text><text x="96" y="89">R0</text><text x="154" y="89">R0</text><text x="212" y="89">R0</text></g>
+            <g fill="#d6b27a" text-anchor="middle"><text x="38" y="199">MX</text><text x="96" y="199">MX</text><text x="154" y="199">MX</text><text x="212" y="199">MX</text></g>
+            <g stroke="#d6b27a" stroke-width="1.3"><path d="M38 110 V170 M96 110 V170 M154 110 V170 M212 110 V170"/></g>
+            <g fill="#ece8e1"><circle cx="38" cy="110" r="3.5"/><circle cx="96" cy="110" r="3.5"/><circle cx="154" cy="110" r="3.5"/><circle cx="212" cy="110" r="3.5"/><circle cx="38" cy="170" r="3.5"/><circle cx="96" cy="170" r="3.5"/><circle cx="154" cy="170" r="3.5"/><circle cx="212" cy="170" r="3.5"/></g>
+          </g>
+          <text x="260" y="258" text-anchor="middle" fill="#6d6a63">gold line = clock spine · dot = clock pin · limit 4.00 ps</text>
+        </g>
+      </svg>
+    </figure>
+  </article>
+
+  <!-- 4 · Ara divider area -->
+  <article class="ex reveal" data-task="case_22003">
+    <div class="ex-text">
+      <div class="ex-src">PULP Ara · RISC-V vector divider</div>
+      <h2>Fit under an area cap</h2>
+      <p class="ex-goal">The divider must stay correct and fit within 83.6K µm² after synthesis.</p>
+      <div class="ex-solved"><span class="ex-dots"></span><span class="ex-count"></span></div>
+      <p class="ex-what">GPT-Sol 6.1 and GPT-Terra 6.1 tried hiding logic from synthesis with <code>`ifndef SYNTHESIS</code>; the verifier rejected it. Claude Opus 5.5 removed unused logic and shared one 64-bit divider.</p>
+      <a class="link-arrow" target="_blank" rel="noopener">Open task →</a>
+    </div>
+    <figure class="ex-fig">
+      <svg viewBox="0 0 520 250" role="img" aria-label="Synthesized area versus 83.6K um2 cap">
+        <g font-family="JetBrains Mono, monospace" font-size="12">
+          <path d="M366.8 24 V214" stroke="#ece8e1" stroke-opacity=".55" stroke-width="1.2" stroke-dasharray="4 4"/>
+          <text x="366.8" y="16" text-anchor="middle" fill="#a9a49b">cap 83.6K µm²</text>
+          <text x="40" y="48" fill="#ece8e1" font-family="Inter, sans-serif" font-size="13.5">Unoptimized  <tspan fill="#6d6a63" font-size="12">GPT-Sol 6.1</tspan></text>
+          <rect x="40" y="56" width="326.8" height="24" rx="3" fill="#d6b27a" fill-opacity=".28"/>
+          <rect x="366.8" y="56" width="72.3" height="24" rx="3" fill="#b9654c"/>
+          <text x="446" y="73" fill="#b9654c">102.1K ✗</text>
+          <text x="40" y="112" fill="#ece8e1" font-family="Inter, sans-serif" font-size="13.5">Unoptimized  <tspan fill="#6d6a63" font-size="12">GLM-5.3</tspan></text>
+          <rect x="40" y="120" width="326.8" height="24" rx="3" fill="#d6b27a" fill-opacity=".28"/>
+          <rect x="366.8" y="120" width="6.3" height="24" rx="1" fill="#b9654c"/>
+          <text x="381" y="137" fill="#b9654c">85.2K ✗</text>
+          <text x="40" y="176" fill="#ece8e1" font-family="Inter, sans-serif" font-size="13.5">Pruned, one shared divider  <tspan fill="#6d6a63" font-size="12">Claude Opus 5.5</tspan></text>
+          <rect x="40" y="184" width="262.7" height="24" rx="3" fill="#d6b27a"/>
+          <text x="311" y="201" fill="#d6b27a">67.2K ✓</text>
+        </g>
+      </svg>
+    </figure>
+  </article>
+
+</section>
+
+<section class="section tight">
+  <div class="wrap" style="text-align:center">
+    <p class="lede" style="margin:0 auto 26px">See every task, its specification and grader.</p>
+    <a class="btn primary" href="https://github.com/hkust-zhiyao/SiliconBench" target="_blank" rel="noopener">SiliconBench on GitHub <span class="arr">→</span></a>
+  </div>
+</section>
+
+</body>
+</html>

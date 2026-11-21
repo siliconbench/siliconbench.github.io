@@ -1,6 +1,6 @@
 # siliconbench.github.io
 
-Source of [siliconbench.github.io](https://siliconbench.github.io), the home of SiliconBench: leaderboard, task explorer and blog.
+Source of [siliconbench.github.io](https://siliconbench.github.io), the home of SiliconBench: leaderboard, examples and blog.
 
 The benchmark itself lives in [hkust-zhiyao/SiliconBench](https://github.com/hkust-zhiyao/SiliconBench).
 
@@ -9,7 +9,7 @@ The benchmark itself lives in [hkust-zhiyao/SiliconBench](https://github.com/hku
 ```text
 index.html                 Home (wafer map, leaderboard preview, key results)
 leaderboard/               Leaderboard and per-task results
-explorer/                  Searchable browser for all tasks
+examples/                  Four representative tasks, with diagrams
 blog/                      Blog index
 blog/<slug>/               One folder per post
 data/site.json             Blog post list

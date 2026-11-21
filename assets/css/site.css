@@ -442,6 +442,22 @@ table.data.compact .heat { min-width: 50px; padding: 5px 6px; font-size: 12.5px;
 .dots i.p.open { background: var(--steel); }
 .empty { padding: 80px 0; text-align: center; color: var(--fg-3); }
 
+/* ---------- Examples ---------- */
+.ex-list { display: grid; gap: 20px; padding-bottom: 40px; }
+.ex {
+  display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 56px; align-items: center;
+  border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-2); padding: 48px 52px;
+}
+.ex-src { font: 500 11.5px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); }
+.ex h2 { font: 400 clamp(30px, 3vw, 40px)/1.1 var(--serif); letter-spacing: -0.02em; margin: 18px 0 14px; }
+.ex-goal { font-size: 17px; color: var(--fg); margin: 0; line-height: 1.6; }
+.ex-solved { display: flex; align-items: center; gap: 12px; margin: 22px 0; font: 400 12.5px/1 var(--mono); color: var(--fg-3); }
+.ex-solved .dots i { width: 11px; height: 11px; }
+.ex-what { font-size: 15px; color: var(--fg-2); margin: 0 0 22px; line-height: 1.65; }
+.ex-what code { background: rgba(255, 255, 255, 0.06); padding: 1px 5px; border-radius: 4px; font-size: 0.85em; }
+.ex-fig { margin: 0; }
+.ex-fig svg { width: 100%; height: auto; display: block; }
+
 /* ---------- Article (blog) ---------- */
 .article-head { padding: 168px 0 56px; text-align: left; }
 .article-head .display { font-size: clamp(42px, 5.6vw, 76px); line-height: 1.02; margin: 24px 0 26px; }
@@ -548,6 +564,7 @@ table.data.compact .heat { min-width: 50px; padding: 5px 6px; font-size: 12.5px;
   .harbor .pipe .line { width: 1px; height: 26px; background: linear-gradient(180deg, var(--line-2), var(--gold)); }
   .harbor .pipe .line::after { display: none; }
   .funnel, .cases, .kpis { grid-template-columns: 1fr; }
+  .ex { grid-template-columns: 1fr; gap: 28px; padding: 30px 22px; }
   .matrix-row, .matrix-axis { grid-template-columns: 110px 1fr 44px; gap: 10px; }
 }
 @media (max-width: 760px) {
