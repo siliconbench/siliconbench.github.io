@@ -12,7 +12,7 @@ Table I, so the website can never drift from the paper.
 import csv, json, os, sys, tomllib, collections
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BENCH = os.environ.get("SB_BENCH", "../SiliconBench-v1.0")
+BENCH = os.environ.get("SB_BENCH", "../SiliconBench")
 RESULTS = os.environ.get(
     "SB_RESULTS",
     "/data/home/devinsliu/hardware/SiliconBench-v2/10_fair_regrade_all6_all94_20261114/all_6models_all94_fair_results.csv",

@@ -4,7 +4,7 @@
 (() => {
   "use strict";
 
-  const REPO = "https://github.com/siliconbench/SiliconBench-v1.0";
+  const REPO = "https://github.com/hkust-zhiyao/SiliconBench";
   const ORG = "https://github.com/siliconbench";
   const DATA = "/data/v1.0";
   const MODEL_COLORS = ["#f0d9ad", "#d6b27a", "#c98b5e", "#9c7b5b", "#8fa3bd", "#6f86a6"];
@@ -55,7 +55,7 @@
       <button class="nav-toggle" aria-label="Menu"><span></span><span></span></button>
       <div class="nav-links">
         ${links.map(([k, h, t]) => `<a href="${h}" class="${k === page ? "active" : ""}">${t}</a>`).join("")}
-        <a class="gh" href="${ORG}" target="_blank" rel="noopener">${GH}GitHub</a>
+        <a class="gh" href="${REPO}" target="_blank" rel="noopener">${GH}GitHub</a>
       </div></div>`;
     document.body.prepend(nav);
     const t = $(".nav-toggle", nav), l = $(".nav-links", nav);

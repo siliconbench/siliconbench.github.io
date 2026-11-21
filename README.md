@@ -2,7 +2,7 @@
 
 Source of [siliconbench.github.io](https://siliconbench.github.io), the home of SiliconBench: leaderboard, task explorer and blog.
 
-The benchmark itself lives in [siliconbench/SiliconBench-v1.0](https://github.com/siliconbench/SiliconBench-v1.0).
+The benchmark itself lives in [hkust-zhiyao/SiliconBench](https://github.com/hkust-zhiyao/SiliconBench).
 
 ## Structure
 
