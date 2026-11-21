@@ -1,0 +1,404 @@
+{
+ "models": [
+  {
+   "id": "opus-5.5",
+   "name": "Claude Opus 5.5",
+   "org": "Anthropic",
+   "access": "proprietary",
+   "effort": "high",
+   "pass": 79,
+   "stages": [
+    81,
+    81,
+    79,
+    79
+   ],
+   "types": {
+    "pt1": 28,
+    "pt2": 10,
+    "pt3": 14,
+    "pt4": 21,
+    "pt5": 6
+   },
+   "rtl_only": 60,
+   "joint": 19,
+   "multi4": 21,
+   "tool_calls_median": 61.5,
+   "tool_calls_mean": 68.6,
+   "unproductive_mean": 14.8,
+   "unproductive_share": 21.6,
+   "hack_runs": 2,
+   "hack_success": 0
+  },
+  {
+   "id": "sonnet-5.5",
+   "name": "Claude Sonnet 5.5",
+   "org": "Anthropic",
+   "access": "proprietary",
+   "effort": "high",
+   "pass": 69,
+   "stages": [
+    80,
+    80,
+    72,
+    69
+   ],
+   "types": {
+    "pt1": 28,
+    "pt2": 9,
+    "pt3": 9,
+    "pt4": 19,
+    "pt5": 4
+   },
+   "rtl_only": 57,
+   "joint": 12,
+   "multi4": 20,
+   "tool_calls_median": 54.0,
+   "tool_calls_mean": 63.6,
+   "unproductive_mean": 15.0,
+   "unproductive_share": 23.6,
+   "hack_runs": 1,
+   "hack_success": 0
+  },
+  {
+   "id": "gpt-sol-6.1",
+   "name": "GPT-Sol 6.1",
+   "org": "OpenAI",
+   "access": "proprietary",
+   "effort": "high",
+   "pass": 49,
+   "stages": [
+    56,
+    55,
+    49,
+    49
+   ],
+   "types": {
+    "pt1": 25,
+    "pt2": 2,
+    "pt3": 10,
+    "pt4": 9,
+    "pt5": 3
+   },
+   "rtl_only": 37,
+   "joint": 12,
+   "multi4": 10,
+   "tool_calls_median": 44.5,
+   "tool_calls_mean": 51.4,
+   "unproductive_mean": 15.3,
+   "unproductive_share": 29.9,
+   "hack_runs": 2,
+   "hack_success": 0
+  },
+  {
+   "id": "gpt-terra-6.1",
+   "name": "GPT-Terra 6.1",
+   "org": "OpenAI",
+   "access": "proprietary",
+   "effort": "high",
+   "pass": 38,
+   "stages": [
+    51,
+    49,
+    40,
+    38
+   ],
+   "types": {
+    "pt1": 21,
+    "pt2": 3,
+    "pt3": 6,
+    "pt4": 7,
+    "pt5": 1
+   },
+   "rtl_only": 35,
+   "joint": 3,
+   "multi4": 6,
+   "tool_calls_median": 37.5,
+   "tool_calls_mean": 46.5,
+   "unproductive_mean": 13.6,
+   "unproductive_share": 29.2,
+   "hack_runs": 2,
+   "hack_success": 0
+  },
+  {
+   "id": "glm-5.3",
+   "name": "GLM-5.3",
+   "org": "Z.ai",
+   "access": "open",
+   "effort": "high",
+   "pass": 31,
+   "stages": [
+    44,
+    40,
+    33,
+    31
+   ],
+   "types": {
+    "pt1": 16,
+    "pt2": 2,
+    "pt3": 3,
+    "pt4": 9,
+    "pt5": 1
+   },
+   "rtl_only": 30,
+   "joint": 1,
+   "multi4": 3,
+   "tool_calls_median": 136.0,
+   "tool_calls_mean": 143.2,
+   "unproductive_mean": 47.7,
+   "unproductive_share": 33.3,
+   "hack_runs": 16,
+   "hack_success": 0
+  },
+  {
+   "id": "deepseek-v4.1-flash",
+   "name": "DeepSeek-V4.1-Flash-1017",
+   "org": "DeepSeek",
+   "access": "open",
+   "effort": "high",
+   "pass": 26,
+   "stages": [
+    38,
+    37,
+    28,
+    26
+   ],
+   "types": {
+    "pt1": 11,
+    "pt2": 4,
+    "pt3": 4,
+    "pt4": 7,
+    "pt5": 0
+   },
+   "rtl_only": 23,
+   "joint": 3,
+   "multi4": 5,
+   "tool_calls_median": 122.0,
+   "tool_calls_mean": 121.6,
+   "unproductive_mean": 37.6,
+   "unproductive_share": 30.9,
+   "hack_runs": 30,
+   "hack_success": 0
+  }
+ ],
+ "summary": {
+  "release": "v1.0",
+  "date": "2026-11",
+  "tasks": 94,
+  "repos": 30,
+  "seed_pool": 160,
+  "runs": 564,
+  "tool_calls": 46526,
+  "files_range": [
+   2,
+   70
+  ],
+  "files_median": 12,
+  "loc_median": 3670,
+  "stage_checked": [
+   94,
+   85,
+   81,
+   15
+  ],
+  "type_counts": {
+   "pt1": 32,
+   "pt2": 12,
+   "pt3": 17,
+   "pt4": 25,
+   "pt5": 8
+  },
+  "type_labels": {
+   "pt1": "Architectural & Protocol Bug Repair",
+   "pt2": "New ISA & Feature Implementation",
+   "pt3": "Timing & Area Optimization",
+   "pt4": "Gate-Level Equivalence, Security & CDC/RDC",
+   "pt5": "RTL + Hard-SRAM Macro Physical Co-Design"
+  },
+  "stage_labels": {
+   "1": "RTL & Simulation",
+   "2": "Synthesis & Gate-Level",
+   "3": "Static Timing & CDC/RDC",
+   "4": "Floorplan, CTS & Routing"
+  },
+  "domains": [
+   [
+    "Net / DMA / Bus",
+    22
+   ],
+   [
+    "Cache / LSU / MMU",
+    20
+   ],
+   [
+    "RVV / GPU / NPU",
+    19
+   ],
+   [
+    "Security / Crypto",
+    13
+   ],
+   [
+    "CPU Core Pipeline",
+    11
+   ],
+   [
+    "Async CDC / RDC",
+    6
+   ],
+   [
+    "FP / Arith / DSP",
+    3
+   ]
+  ],
+  "subsets": {
+   "rtl_only": 70,
+   "joint": 24,
+   "multi4": 29
+  },
+  "failed_runs": 272,
+  "failed_pass_rtl_fail_downstream": 58,
+  "hack": {
+   "runs": 53,
+   "events": 90,
+   "succeeded": 0,
+   "categories": [
+    [
+     "Probing outside /workspace for tests or references",
+     86
+    ],
+    [
+     "Synthesis-bypass macros (`ifndef SYNTHESIS)",
+     3
+    ],
+    [
+     "Timestamp forgery on a read-only file",
+     1
+    ]
+   ]
+  },
+  "unsolved_by_all": 6,
+  "repos_list": [
+   [
+    "lowRISC/opentitan",
+    8
+   ],
+   [
+    "pulp-platform/ara",
+    7
+   ],
+   [
+    "openhwfoundation/cva6",
+    6
+   ],
+   [
+    "alexforencich/verilog-axi",
+    5
+   ],
+   [
+    "chipsalliance/caliptra-rtl",
+    5
+   ],
+   [
+    "openhwfoundation/cv32e40p",
+    5
+   ],
+   [
+    "vortexgpgpu/vortex",
+    5
+   ],
+   [
+    "analogdevicesinc/hdl",
+    4
+   ],
+   [
+    "corundum/corundum",
+    4
+   ],
+   [
+    "lowRISC/ibex",
+    4
+   ],
+   [
+    "ultraembedded/biriscv",
+    4
+   ],
+   [
+    "chipsalliance/cores-veer-eh1",
+    3
+   ],
+   [
+    "chipsalliance/cores-veer-eh2",
+    3
+   ],
+   [
+    "chipsalliance/cores-veer-el2",
+    3
+   ],
+   [
+    "nvdla/hw",
+    3
+   ],
+   [
+    "princetonuniversity/openpiton",
+    3
+   ],
+   [
+    "pulp-platform/axi_llc",
+    3
+   ],
+   [
+    "pulp-platform/redmule",
+    3
+   ],
+   [
+    "pulp-platform/snitch",
+    3
+   ],
+   [
+    "pulp-platform/cluster_interconnect",
+    2
+   ],
+   [
+    "pulp-platform/hwpe-ctrl",
+    2
+   ],
+   [
+    "bespoke-silicon-group/basejump_stl",
+    1
+   ],
+   [
+    "bespoke-silicon-group/bsg_manycore",
+    1
+   ],
+   [
+    "black-parrot/black-parrot",
+    1
+   ],
+   [
+    "openhwfoundation/cv32e41p",
+    1
+   ],
+   [
+    "openhwgroup/cvfpu",
+    1
+   ],
+   [
+    "pulp-platform/croc",
+    1
+   ],
+   [
+    "pulp-platform/idma",
+    1
+   ],
+   [
+    "pulp-platform/neureka",
+    1
+   ],
+   [
+    "zipcpu/wb2axip",
+    1
+   ]
+  ]
+ }
+}

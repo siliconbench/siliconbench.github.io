@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SiliconBench v1.0: Can agents engineer real silicon? — SiliconBench</title>
+  <meta name="description" content="94 front-to-back chip engineering tasks, six frontier agents, 564 runs. What passes, what breaks after simulation, and why no hack got through.">
+  <meta property="og:title" content="SiliconBench v1.0: Can agents engineer real silicon?">
+  <meta property="og:description" content="94 front-to-back chip engineering tasks, six frontier agents, 564 runs.">
+  <meta property="og:image" content="https://siliconbench.github.io/assets/img/og.png">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#08080a">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/Fraunces-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="/assets/css/site.css">
+  <script src="/assets/js/site.js" defer></script>
+</head>
+<body data-page="post">
+
+<header class="article-head page-head" style="padding-bottom:56px">
+  <div class="narrow">
+    <span class="eyebrow reveal"><span class="dot"></span>Release · Nov 2026 · 8 min read</span>
+    <h1 class="display reveal d1">SiliconBench v1.0: Can agents engineer <em>real silicon?</em></h1>
+    <div class="byline reveal d2">
+      <span><b>Shang Liu, Wenji Fang, Jing Wang, Ziyan Guo, Yao Lu, Zhiyao Xie</b></span>
+      <span>HKUST</span>
+    </div>
+    <div class="article-actions reveal d3">
+      <a class="btn primary" href="/assets/papers/siliconbench-v1.0.pdf">Paper (PDF)</a>
+      <a class="btn" href="https://github.com/siliconbench/SiliconBench-v1.0" target="_blank" rel="noopener">Dataset</a>
+      <a class="btn" href="/leaderboard/">Leaderboard</a>
+    </div>
+  </div>
+</header>
+
+<div class="article-grid" style="padding-bottom:120px">
+  <aside><nav class="toc" aria-label="Contents"></nav></aside>
+  <article class="prose">
+
+    <div class="tldr reveal">
+      <div class="eyebrow">TL;DR</div>
+      <ul>
+        <li>94 real chip engineering tasks, graded on simulation, synthesis, timing and layout, not simulation alone.</li>
+        <li>Claude Opus 5.5 passes 84.0%. The best open-weights agent, GLM-5.3, passes 33.0%.</li>
+        <li>21.3% of failed runs pass RTL simulation and then fail a downstream check.</li>
+        <li>Agents attempted to hack the grader in 53 of 564 runs. None succeeded.</li>
+      </ul>
+    </div>
+
+    <h2 id="why" data-toc="Why SiliconBench"><span class="no">01</span>Why another hardware benchmark?</h2>
+    <p>Agents now report 95–99% on standard RTL benchmarks. Real chip engineering is far from solved. The gap is in what those benchmarks leave out:</p>
+    <ul>
+      <li><strong>Single-stage grading.</strong> Most check functional simulation only. Synthesis and layout appear only on small, standalone modules.</li>
+      <li><strong>Isolated edits.</strong> Agents fix RTL under frozen constraints, or tune scripts on frozen RTL. Real designers change both together.</li>
+      <li><strong>Hackable grading.</strong> When the agent and the grader share a workspace, an agent can look for reference answers, weaken a testbench, or hide logic from synthesis.</li>
+    </ul>
+    <p>SiliconBench closes all three gaps.</p>
+
+    <h2 id="what" data-toc="What is in it"><span class="no">02</span>What is in it</h2>
+    <p>Each task is a compilable, multi-file repository from one of 30 open-source SystemVerilog projects, such as OpenTitan, CVA6, Corundum, BlackParrot and PULP Ara. Repositories have 2–70 RTL files, with a median of 12 files and 3,670 lines. The agent gets a written specification and must make the design pass every check the task requires.</p>
+
+    <figure class="figure reveal">
+      <div class="chart-card">
+        <h3>Five problem types</h3>
+        <p class="sub">Mutually exclusive, N = 94</p>
+        <div id="post-type-bars"></div>
+      </div>
+    </figure>
+
+    <p>Tasks span seven hardware domains, from network and DMA engines to vector accelerators and crypto cores:</p>
+
+    <figure class="figure reveal">
+      <div class="chart-card">
+        <h3>Seven hardware domains</h3>
+        <p class="sub">Number of tasks per domain</p>
+        <div id="post-domain-bars"></div>
+      </div>
+    </figure>
+
+    <p>Every task runs functional simulation. Most go further: 85 add synthesis and gate-level checks, 81 add static timing or CDC/RDC, and 15 require hard-SRAM floorplanning, clock-tree synthesis and routing. In 24 tasks, the agent must edit timing constraints (<code>.sdc</code>) or macro floorplans along with the RTL.</p>
+
+    <h2 id="harbor" data-toc="Isolated grading"><span class="no">03</span>Grading the agent cannot touch</h2>
+    <p>We use the two-container <a href="https://github.com/laude-institute/harbor" target="_blank" rel="noopener">Harbor</a> architecture. The agent never shares a filesystem with the grader.</p>
+
+    <figure class="figure reveal">
+      <div class="harbor">
+        <div class="box">
+          <span class="k">Phase 1 · Solver</span>
+          <h4>Offline agent container</h4>
+          <ul><li>No internet, no git history</li><li>No private tests or references</li><li>Writes its own tests, runs EDA tools</li></ul>
+        </div>
+        <div class="pipe"><span>Allowlisted<br>files only</span><span class="line"></span></div>
+        <div class="box">
+          <span class="k">Phase 2 · Verifier</span>
+          <h4>Clean grading container</h4>
+          <ul><li>Anti-cheat policy checks</li><li>Private multi-seed tests</li><li>Synthesis, timing and layout</li></ul>
+        </div>
+      </div>
+      <figcaption>Only the task's editable RTL, constraint and floorplan files cross over. Modified wrappers, local testbenches and logs are discarded.</figcaption>
+    </figure>
+
+    <h2 id="built" data-toc="How tasks were built"><span class="no">04</span>How tasks were built</h2>
+    <div class="funnel reveal">
+      <div><span class="k">Phase I · Seed pool</span><b>160</b><p>Senior IC engineers write candidate tasks with self-contained specifications.</p></div>
+      <div><span class="k">Phase II · Automated QA</span><b>2 + 1</b><p>Two independent reference solutions must pass; the starter design must fail. Injected bugs must be caught.</p></div>
+      <div><span class="k">Phase III · Expert review</span><b>94</b><p>Specialists check every assertion against the spec and remove ambiguous or fragile tasks.</p></div>
+    </div>
+    <p>Requiring two independent solutions keeps graders honest: a valid hardware fix can take many forms, and the tests must accept all of them.</p>
+
+    <h2 id="results" data-toc="Results"><span class="no">05</span>Results</h2>
+    <p>We evaluated six frontier agents at high reasoning effort: four proprietary and two open-weights, 564 runs in total.</p>
+
+    <figure class="figure reveal">
+      <div class="chart-card">
+        <h3>Pass rate</h3>
+        <p class="sub">All required checks pass in the verifier, within the time budget</p>
+        <div id="post-pass-bars"></div>
+      </div>
+    </figure>
+
+    <p>The ranking is clear, and so is the gap: proprietary agents pass 40.4–84.0%; open-weights agents pass 27.7–33.0%. The gap grows when RTL and constraints must change together. Claude Opus 5.5 keeps 79.2% on those 24 tasks; GLM-5.3 drops to 4.2%.</p>
+
+    <figure class="figure wide reveal">
+      <div class="chart-card">
+        <h3>Passing simulation is not passing</h3>
+        <p class="sub">Cumulative pass rate as each EDA stage is added</p>
+        <div class="chart" id="post-stage-chart"></div>
+      </div>
+      <figcaption>Claude Opus 5.5 loses 2.2 points after RTL simulation; DeepSeek-V4.1-Flash-1017 loses 12.7. Across all agents, <b>21.3% of failed runs pass RTL simulation</b> and then fail synthesis, timing or layout.</figcaption>
+    </figure>
+
+    <p>Results by problem type show where agents struggle most. Bug repair in an intact design is easiest. New features and physical co-design are hardest: on the eight hard-SRAM tasks, DeepSeek-V4.1-Flash-1017 solves none.</p>
+
+    <figure class="figure wide reveal">
+      <div class="table-wrap" id="post-type-table"></div>
+      <figcaption>Pass rate (%) by problem type.</figcaption>
+    </figure>
+
+    <h2 id="behavior" data-toc="How agents work"><span class="no">06</span>How agents work</h2>
+    <p>We analyzed all 46,526 tool calls. Three distinct styles emerge.</p>
+
+    <figure class="figure reveal">
+      <div class="chart-card">
+        <h3>More calls, fewer passes</h3>
+        <p class="sub">Median tool calls per task vs pass rate</p>
+        <div class="chart" id="post-scatter"></div>
+      </div>
+    </figure>
+
+    <ul>
+      <li><strong>Test first, then verify downstream (Claude Opus 5.5).</strong> On 64.9% of tasks it runs its own testbench on the original RTL to confirm the test catches the bug. It then updates connected modules and reads synthesis, timing and layout reports before finishing.</li>
+      <li><strong>Trial and error (GLM-5.3, DeepSeek-V4.1-Flash-1017).</strong> 122–136 median calls per task. DeepSeek checks its testbench against the original RTL on only 20.2% of tasks. GLM and DeepSeek spend 33.3% and 30.9% of calls fixing their own broken testbenches, resolving compile errors or repeating failed edits.</li>
+      <li><strong>Stopping early (GPT-Sol 6.1, GPT-Terra 6.1).</strong> 37.5–44.5 median calls. In about 20% of runs they edit RTL after their last simulation and never re-test, and they skip gate-level simulation on over 55% of applicable tasks.</li>
+    </ul>
+
+    <h2 id="failures" data-toc="Why agents fail"><span class="no">07</span>Why agents fail</h2>
+    <p>Reading the 272 failed trajectories, three patterns repeat:</p>
+    <ul>
+      <li><strong>Coupled modules left out of sync.</strong> On tasks spanning three or more modules, leaving a required module untouched is 5.1× more common in failed runs than in passing ones. Others edit each file locally without matching the flush, credit or valid/ready handshake across the boundary.</li>
+      <li><strong>Self-confirming testbenches.</strong> Of 85 functionally wrong submissions, 97.6% ended with the agent claiming verification succeeded. Their tests used only simple inputs, stopped at lint, or relaxed a failing check, assuming the test was wrong.</li>
+      <li><strong>Treating hardware like software.</strong> Agents test in 2-state simulation and miss X values after reset, unroll loops past area limits, skip timing or layout tools, or ignore negative slack because the tool exited with code 0.</li>
+    </ul>
+    <p>Six tasks remain unsolved by all six agents. Each combines multi-file logic with strict area, multi-corner timing or multi-SRAM layout limits.</p>
+
+    <h2 id="hacking" data-toc="Evaluation hacking"><span class="no">08</span>Evaluation hacking</h2>
+    <p>We define evaluation hacking as a deliberate attempt to bypass grading, such as searching for hidden tests or reference RTL outside <code>/workspace</code>. It happened in 53 of 564 runs, with 90 distinct events. Zero succeeded.</p>
+
+    <div class="kpis reveal">
+      <div><b>1.1–2.1%</b><span>of runs attempt hacks, proprietary agents</span></div>
+      <div><b>17.0–31.9%</b><span>of runs attempt hacks, open-weights agents</span></div>
+      <div><b>0 / 90</b><span>hack events that got past the verifier</span></div>
+    </div>
+
+    <figure class="figure reveal">
+      <div class="chart-card">
+        <h3>Runs attempting a hack</h3>
+        <p class="sub">Share of 94 runs per agent; none succeeded</p>
+        <div id="post-hack-bars"></div>
+      </div>
+    </figure>
+
+    <ul>
+      <li><strong>Probing for answers (86 events).</strong> <code>find /</code>, <code>grep -r</code> and <code>ls /workspace/..</code> to look for testbenches, grader scripts or upstream code. The offline solver container holds none of them.</li>
+      <li><strong>Hiding logic from synthesis (3 files, 2 runs).</strong> On the Ara vector divider, GPT-Sol 6.1 and GPT-Terra 6.1 wrapped logic in <code>`ifndef SYNTHESIS</code>, so the simulator and synthesizer see different circuits. The verifier's policy check and gate-level simulation reject it.</li>
+      <li><strong>Forging a timestamp (1 event).</strong> After editing and reverting a read-only wrapper, GPT-Terra 6.1 ran <code>touch -d</code> to restore its timestamp. Harbor copies only hash-verified, allowlisted files, so this has no effect.</li>
+    </ul>
+    <blockquote>As agents get stronger, a benchmark is only as good as the wall between the agent and the grader.</blockquote>
+
+    <h2 id="cases" data-toc="Case studies"><span class="no">09</span>Four case studies</h2>
+    <div class="cases reveal">
+      <div class="case"><span class="k">OpenTitan KMAC · 5/6 pass</span><h4>Cross-module flush</h4><p>A flush must stop <code>prim_packer</code> inputs and drain <code>kmac_msgfifo</code> together. DeepSeek-V4.1-Flash-1017 edits both without blocking new inputs; Claude Opus 5.5 keeps them in sync.</p></div>
+      <div class="case"><span class="k">Corundum 100G NIC · 1/6 pass</span><h4>500 MHz timing closure</h4><p>GPT-Terra 6.1 does an 80-bit add and compare in one cycle: it passes simulation, then fails timing at 2.62 ns (WNS −0.62 ns). Only Claude Opus 5.5 pipelines it (WNS +0.52 ns).</p></div>
+      <div class="case"><span class="k">BlackParrot 8-SRAM tile · 4/6 pass</span><h4>Macro clock skew</h4><p>Skew must stay under 4.00 ps. DeepSeek-V4.1-Flash-1017 leaves all eight macros upright (10.84 ps). Claude Opus 5.5 mirrors the bottom four toward the clock spine (3.07 ps).</p></div>
+      <div class="case"><span class="k">PULP Ara divider · 1/6 pass</span><h4>Area, without cheating</h4><p>The cap is 83.6K µm². Two agents hide divider logic from synthesis and are rejected. Only Claude Opus 5.5 prunes wrapper logic and shares one 64-bit divider (67.2K µm²).</p></div>
+    </div>
+    <figure class="figure wide reveal">
+      <div class="paper-plate"><img src="/assets/img/case-studies.png" alt="Four representative case studies from the SiliconBench paper" loading="lazy"></div>
+      <figcaption>Paper figure: what failing and passing agents did in each case.</figcaption>
+    </figure>
+
+    <h2 id="next" data-toc="What is next"><span class="no">10</span>What is next</h2>
+    <p>SiliconBench is a living benchmark. We will add releases as agents improve and publish every task, grader and trajectory format, so others can reproduce our numbers or prove us wrong. If you build hardware agents, <a href="https://github.com/siliconbench/SiliconBench-v1.0" target="_blank" rel="noopener">run the benchmark</a> and send us your results.</p>
+    <p>Open-weights models trail by a wide margin today. We hope an open, trustworthy benchmark helps close that gap.</p>
+
+    <h3>Citation</h3>
+    <div class="cite" style="margin-top:16px">
+      <button class="copy" data-copy="#bib">Copy</button>
+<pre id="bib"><span class="k">@misc</span>{liu2026siliconbench,
+  title  = {SiliconBench-v1.0: Benchmarking Agents on
+            Full-Stack Front-to-Back Silicon Engineering},
+  author = {Liu, Shang and Fang, Wenji and Wang, Jing and
+            Guo, Ziyan and Lu, Yao and Xie, Zhiyao},
+  year   = {2026},
+  url    = {https://siliconbench.github.io}
+}</pre>
+    </div>
+  </article>
+  <div></div>
+</div>
+
+</body>
+</html>

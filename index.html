@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SiliconBench — Benchmarking agents on real silicon engineering</title>
+  <meta name="description" content="SiliconBench measures whether AI agents can do real chip engineering: 94 tasks from 30 open-source SystemVerilog repositories, graded by simulation, synthesis, timing and layout.">
+  <meta property="og:title" content="SiliconBench">
+  <meta property="og:description" content="From RTL to layout. A front-to-back benchmark for AI agents on real chip engineering.">
+  <meta property="og:image" content="https://siliconbench.github.io/assets/img/og.png">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#08080a">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/Fraunces-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="/assets/css/site.css">
+  <script src="/assets/js/site.js" defer></script>
+</head>
+<body data-page="home">
+
+<header class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-lines"></div>
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow reveal"><span class="dot"></span>SiliconBench v1.0 · Nov 2026</span>
+      <h1 class="display reveal d1">From RTL<br>to <em>layout.</em></h1>
+      <p class="lede reveal d2">SiliconBench tests whether AI agents can do real chip engineering. 94 tasks from 30 open-source SystemVerilog repositories, graded end to end by simulation, synthesis, timing and physical design.</p>
+      <div class="hero-cta reveal d3">
+        <a class="btn primary" href="/leaderboard/">View leaderboard <span class="arr">→</span></a>
+        <a class="btn" href="/blog/siliconbench-v1/">Read the blog</a>
+      </div>
+      <div class="hero-meta reveal d3">
+        <span>Top agent <b>84.0%</b></span>
+        <span>Best open weights <b>33.0%</b></span>
+        <span>Successful hacks <b>0</b></span>
+      </div>
+    </div>
+    <div class="wafer-wrap reveal d2">
+      <div id="wafer"></div>
+      <div class="wafer-foot">
+        <div class="wafer-readout" id="wafer-readout"></div>
+        <div class="wafer-controls" id="wafer-controls"></div>
+      </div>
+      <div class="wafer-caption">Yield map. Each die is one task; harder tasks sit near the edge. Red dots mark failures.</div>
+    </div>
+  </div>
+</header>
+
+<section class="wrap">
+  <div class="stats reveal">
+    <div class="stat"><div class="n" data-count="94">94</div><div class="l">Tasks</div></div>
+    <div class="stat"><div class="n" data-count="30">30</div><div class="l">Open-source repositories</div></div>
+    <div class="stat"><div class="n" data-count="4">4</div><div class="l">EDA stages graded</div></div>
+    <div class="stat"><div class="n" data-count="564">564</div><div class="l">Agent runs analyzed</div></div>
+    <div class="stat"><div class="n">0</div><div class="l">Successful hacks</div></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow reveal">01 — Leaderboard</span>
+        <h2 class="display reveal">Who can close the loop?</h2>
+        <p class="lede reveal">Pass rate on all 94 tasks. A task passes only if every required check passes in an isolated verifier.</p>
+      </div>
+      <a class="link-arrow reveal" href="/leaderboard/">Full leaderboard →</a>
+    </div>
+    <div class="lb reveal" id="lb-compact"></div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:40px">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow reveal">02 — Front to back</span>
+        <h2 class="display reveal">Simulation is <em>not</em> the finish line.</h2>
+        <p class="lede reveal">Each task runs the checks a real chip team would run before tape-out.</p>
+      </div>
+    </div>
+    <div class="flow">
+      <div class="flow-step reveal">
+        <div class="flow-node">01</div>
+        <h3>RTL &amp; Simulation</h3>
+        <p>Private multi-seed testbenches check functional behavior.</p>
+        <div class="tools">Verilator · Icarus Verilog</div>
+        <div class="count">94<small>tasks checked</small></div>
+      </div>
+      <div class="flow-step reveal d1">
+        <div class="flow-node">02</div>
+        <h3>Synthesis &amp; Gate-Level</h3>
+        <p>Area budgets, no latches or loops, 4-state gate-level simulation.</p>
+        <div class="tools">Yosys + Slang</div>
+        <div class="count">85<small>tasks checked</small></div>
+      </div>
+      <div class="flow-step reveal d2">
+        <div class="flow-node">03</div>
+        <h3>Timing &amp; CDC/RDC</h3>
+        <p>Setup and hold at the target clock, often across three corners.</p>
+        <div class="tools">OpenSTA</div>
+        <div class="count">81<small>tasks checked</small></div>
+      </div>
+      <div class="flow-step reveal d3">
+        <div class="flow-node">04</div>
+        <h3>Floorplan &amp; Routing</h3>
+        <p>Hard-SRAM macro placement, clock-tree skew and global routing.</p>
+        <div class="tools">OpenROAD</div>
+        <div class="count">15<small>tasks checked</small></div>
+      </div>
+    </div>
+    <div class="callout reveal">
+      <div class="n">21.3%</div>
+      <p>of failed runs <b>pass RTL simulation</b>, then fail synthesis, timing or layout. A benchmark that stops at simulation would count them as solved.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow reveal">03 — Findings</span>
+        <h2 class="display reveal">What v1.0 tells us.</h2>
+      </div>
+      <a class="link-arrow reveal" href="/blog/siliconbench-v1/">Full analysis →</a>
+    </div>
+    <div class="findings reveal">
+      <div class="finding">
+        <span class="k">Capability gap</span>
+        <div class="n">84.0<span class="sep">vs</span>33.0</div>
+        <h3>Proprietary agents lead by a wide margin.</h3>
+        <p>Best proprietary vs best open-weights pass rate. When RTL and constraints must change together, Claude Opus 5.5 keeps 79.2%; GLM-5.3 falls to 4.2%.</p>
+      </div>
+      <div class="finding">
+        <span class="k">Effort vs progress</span>
+        <div class="n">2–3×</div>
+        <h3>More steps, not better ones.</h3>
+        <p>Open-weights agents use 122–136 median tool calls per task, versus 37.5–61.5 for proprietary agents, and spend about a third of them on unproductive loops.</p>
+      </div>
+      <div class="finding">
+        <span class="k">Evaluation hacking</span>
+        <div class="n">0<span class="sep">/</span>53</div>
+        <h3>Agents tried to game the grader. None succeeded.</h3>
+        <p>53 of 564 runs attempted a hack, up to 31.9% of runs for one open-weights model. Isolated Harbor grading blocked all 90 attempts.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:40px">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow reveal">04 — Releases</span>
+        <h2 class="display reveal">A living benchmark.</h2>
+        <p class="lede reveal">New releases ship as agents improve. Every release is versioned, open and reproducible.</p>
+      </div>
+    </div>
+    <div class="releases reveal" id="releases"></div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:40px">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow reveal">05 — Writing</span>
+        <h2 class="display reveal">Research notes.</h2>
+      </div>
+      <a class="link-arrow reveal" href="/blog/">All posts →</a>
+    </div>
+    <div class="posts reveal" id="posts"></div>
+  </div>
+</section>
+
+<section class="section" id="about">
+  <div class="wrap">
+    <span class="eyebrow reveal">06 — About</span>
+    <h2 class="display reveal" style="max-width:15em;margin-top:22px">Chip designers check everything twice. <em>Agents should too.</em></h2>
+    <div class="grid-2" style="margin-top:56px;gap:56px">
+      <div class="reveal">
+        <p class="lede" style="margin-top:0">SiliconBench is built at the Hong Kong University of Science and Technology by <a href="https://zhiyaoxie.com" target="_blank" rel="noopener" style="color:var(--fg);border-bottom:1px solid var(--line-2)">Prof. Zhiyao Xie's group</a>, which works on AI for chip design.</p>
+        <p class="muted">Every task, grader and environment is open, so any result here can be reproduced or challenged. To have your agent evaluated, <a href="https://github.com/siliconbench/SiliconBench-v1.0/issues" target="_blank" rel="noopener" style="color:var(--gold-2)">open an issue</a>.</p>
+        <p class="faint" style="font-size:14px;margin-top:28px">Shang Liu · Wenji Fang · Jing Wang · Ziyan Guo · Yao Lu · Zhiyao Xie</p>
+      </div>
+      <div class="reveal d1">
+        <div class="cite">
+          <button class="copy" data-copy="#bib">Copy</button>
+<pre id="bib"><span class="k">@misc</span>{liu2026siliconbench,
+  title  = {SiliconBench-v1.0: Benchmarking Agents on
+            Full-Stack Front-to-Back Silicon Engineering},
+  author = {Liu, Shang and Fang, Wenji and Wang, Jing and
+            Guo, Ziyan and Lu, Yao and Xie, Zhiyao},
+  year   = {2026},
+  url    = {https://siliconbench.github.io}
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

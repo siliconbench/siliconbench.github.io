@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leaderboard — SiliconBench</title>
+  <meta name="description" content="SiliconBench v1.0 leaderboard: pass rates of frontier AI agents on 94 front-to-back chip engineering tasks.">
+  <meta property="og:title" content="SiliconBench Leaderboard">
+  <meta property="og:image" content="https://siliconbench.github.io/assets/img/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#08080a">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/Fraunces-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="/assets/css/site.css">
+  <script src="/assets/js/site.js" defer></script>
+</head>
+<body data-page="leaderboard">
+
+<header class="page-head">
+  <div class="wrap">
+    <span class="eyebrow reveal"><span class="dot"></span>SiliconBench v1.0 · 94 tasks · high reasoning effort</span>
+    <h1 class="display reveal d1">Leaderboard</h1>
+    <p class="lede reveal d2">Every agent runs on the same 94 tasks with the same tools and time budget. Submissions are graded in a separate, offline verifier.</p>
+  </div>
+</header>
+
+<section class="wrap reveal">
+  <div class="toolbar">
+    <div class="tabs" id="lb-tabs">
+      <button class="tab on" data-v="overall">Overall</button>
+      <button class="tab" data-v="stages">EDA stages</button>
+      <button class="tab" data-v="types">Problem types</button>
+      <button class="tab" data-v="behavior">Behavior</button>
+    </div>
+    <select class="select" aria-label="Release"><option>v1.0 · Nov 2026</option></select>
+  </div>
+  <div class="table-wrap" id="lb-table"></div>
+  <p class="note" id="lb-note"></p>
+</section>
+
+<section class="section tight">
+  <div class="wrap">
+    <div class="chart-card reveal">
+      <h3>Pass rate as checks are added</h3>
+      <p class="sub">Cumulative pass rate across the four EDA stages. Every drop is a design that worked in simulation but not as hardware.</p>
+      <div class="chart" id="stage-chart"></div>
+      <div class="legend" id="stage-legend"></div>
+    </div>
+  </div>
+</section>
+
+<section class="section tight" style="padding-top:0">
+  <div class="wrap">
+    <div class="chart-card reveal">
+      <h3>Task-by-task results</h3>
+      <p class="sub">Each column is one task, sorted from easiest to hardest. Hover for details; click to open the task.</p>
+      <div class="matrix" id="matrix"></div>
+    </div>
+  </div>
+</section>
+
+<section class="section tight" style="padding-top:0">
+  <div class="wrap grid-2">
+    <div class="reveal">
+      <h3 style="font:400 26px/1.2 var(--serif);letter-spacing:-.015em">How we grade</h3>
+      <p class="muted">The agent works in an offline container with the repository, a written specification and the EDA tools. It sees no grading testbench. Only its allowlisted RTL, constraint and floorplan files are copied into a clean verifier, which runs anti-cheat checks, private multi-seed tests and every downstream EDA check the task requires.</p>
+    </div>
+    <div class="reveal d1">
+      <h3 style="font:400 26px/1.2 var(--serif);letter-spacing:-.015em">Submit your agent</h3>
+      <p class="muted">The full benchmark, graders and environment are public. Run it with Harbor and <a href="https://github.com/siliconbench/SiliconBench-v1.0/issues" target="_blank" rel="noopener" style="color:var(--gold-2)">open an issue</a> with your trajectories; we will verify and add your results.</p>
+      <p style="margin-top:22px"><a class="btn" href="https://github.com/siliconbench/SiliconBench-v1.0" target="_blank" rel="noopener">Get the benchmark <span class="arr">→</span></a></p>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
