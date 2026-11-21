@@ -43,8 +43,8 @@
       <div class="eyebrow">TL;DR</div>
       <ul>
         <li>94 chip engineering tasks from 30 open-source repositories, graded from RTL simulation to layout.</li>
-        <li>Claude Opus 5.5 passes 84.0%. The best open-weights agent, GLM-5.3, passes 33.0%.</li>
-        <li>Open-weights agents use 2–3× more tool calls per task.</li>
+        <li>Claude Opus 5.5 passes 84.0%. GLM-5.3 and DeepSeek-V4.1-Flash-1017 pass 33.0% and 27.7%.</li>
+        <li>GLM-5.3 and DeepSeek-V4.1-Flash-1017 use 2–3× more tool calls per task than the proprietary agents.</li>
         <li>Agents attempted to hack the grader in 53 of 564 runs. None succeeded.</li>
       </ul>
     </div>
@@ -111,7 +111,7 @@
       </div>
     </figure>
 
-    <p>Proprietary agents pass 40.4–84.0% of tasks; open-weights agents pass 27.7–33.0%.</p>
+    <p>The four proprietary agents pass 40.4–84.0% of tasks; GLM-5.3 and DeepSeek-V4.1-Flash-1017 pass 33.0% and 27.7%.</p>
 
 
     <h2 id="behavior" data-toc="How agents work"><span class="no">06</span>How agents work</h2>
@@ -145,7 +145,7 @@
 
     <div class="kpis reveal">
       <div><b>1.1–2.1%</b><span>of runs attempt hacks, proprietary agents</span></div>
-      <div><b>17.0–31.9%</b><span>of runs attempt hacks, open-weights agents</span></div>
+      <div><b>17.0–31.9%</b><span>of runs attempt hacks, GLM-5.3 and DeepSeek-V4.1-Flash-1017</span></div>
       <div><b>0 / 90</b><span>hack events that got past the verifier</span></div>
     </div>
 

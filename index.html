@@ -32,8 +32,9 @@
         <a class="btn" href="/blog/siliconbench-v1/">Read the blog</a>
       </div>
       <div class="hero-meta reveal d3">
-        <span>Top agent <b>84.0%</b></span>
-        <span>Best open weights <b>33.0%</b></span>
+        <span>Claude Opus 5.5 <b>84.0%</b></span>
+        <span>GLM-5.3 <b>33.0%</b></span>
+        <span>DeepSeek-V4.1 <b>27.7%</b></span>
         <span>Successful hacks <b>0</b></span>
       </div>
     </div>
@@ -47,16 +48,6 @@
     </div>
   </div>
 </header>
-
-<section class="wrap">
-  <div class="stats reveal">
-    <div class="stat"><div class="n" data-count="94">94</div><div class="l">Tasks</div></div>
-    <div class="stat"><div class="n" data-count="30">30</div><div class="l">Open-source repositories</div></div>
-    <div class="stat"><div class="n" data-count="6">6</div><div class="l">Agents evaluated</div></div>
-    <div class="stat"><div class="n" data-count="564">564</div><div class="l">Agent runs</div></div>
-    <div class="stat"><div class="n">0</div><div class="l">Successful hacks</div></div>
-  </div>
-</section>
 
 <section class="section">
   <div class="wrap">
@@ -83,20 +74,20 @@
       <div class="finding">
         <span class="k">Pass rate</span>
         <div class="n">84.0<span class="sep">vs</span>33.0</div>
-        <h3>Proprietary agents lead by a wide margin.</h3>
-        <p>Claude Opus 5.5 passes 84.0% of tasks. The best open-weights agent, GLM-5.3, passes 33.0%.</p>
+        <h3>A wide gap between agents.</h3>
+        <p>Claude Opus 5.5 passes 84.0% of tasks. GLM-5.3 and DeepSeek-V4.1-Flash-1017 pass 33.0% and 27.7%.</p>
       </div>
       <div class="finding">
         <span class="k">Tool calls</span>
         <div class="n">2–3×</div>
-        <h3>Open-weights agents take more steps.</h3>
-        <p>They use 122–136 tool calls per task (median), versus 37.5–61.5 for proprietary agents.</p>
+        <h3>GLM and DeepSeek take more steps.</h3>
+        <p>GLM-5.3 and DeepSeek-V4.1-Flash-1017 use 136 and 122 tool calls per task (median), versus 37.5–61.5 for the four proprietary agents.</p>
       </div>
       <div class="finding">
         <span class="k">Hacking</span>
         <div class="n">0<span class="sep">/</span>53</div>
         <h3>Agents tried to hack the grader. None succeeded.</h3>
-        <p>53 of 564 runs attempted a hack, most of them by open-weights agents. The isolated verifier blocked every attempt.</p>
+        <p>53 of 564 runs attempted a hack, 46 of them by GLM-5.3 and DeepSeek-V4.1-Flash-1017. The isolated verifier blocked every attempt.</p>
       </div>
     </div>
   </div>
