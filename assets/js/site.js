@@ -123,7 +123,7 @@
   const taskTip = (t, models, labels) => `<div class="t-id">${t.id.replace("_", " ").toUpperCase()}</div>
     <div class="t-title">${esc(t.title)}</div>
     <div>${esc(t.repo)}</div>
-    <div class="faint" style="margin-top:4px">${esc(labels[t.type])} · Stage ${t.stage}</div>
+    <div class="faint" style="margin-top:4px">${esc(labels[t.type])}</div>
     <div class="t-dots">${dotsHTML(t.pass, models)}<span class="faint" style="margin-left:8px">${t.pass.reduce((a, b) => a + b, 0)}/6 agents</span></div>`;
 
   /* ---------------- Wafer yield map ---------------- */
@@ -301,18 +301,11 @@
     });
   }
 
-  async function homeReleasesPosts() {
-    const rh = $("#releases"), ph = $("#posts");
-    if (!rh && !ph) return;
+  async function homePosts() {
+    const ph = $("#posts");
+    if (!ph) return;
     const site = await loadSite();
-    if (rh) rh.innerHTML = site.releases.map((r) => `
-      <${r.href ? `a href="${r.href}"` : "div"} class="release ${r.status === "live" ? "live" : ""}">
-        <div class="status">${esc(r.statusLabel)}</div>
-        <h3>${esc(r.name)}</h3>
-        <p>${esc(r.blurb)}</p>
-        <div class="foot">${(r.facts || []).map((f) => `<span><b>${esc(f[0])}</b> ${esc(f[1])}</span>`).join("")}</div>
-      </${r.href ? "a" : "div"}>`).join("");
-    if (ph) renderPosts(ph, site.posts.slice(0, 3));
+    renderPosts(ph, site.posts.slice(0, 3));
   }
   function renderPosts(host, posts) {
     host.innerHTML = posts.map((p) => `
@@ -330,45 +323,6 @@
   }
 
   /* ---------------- Charts ---------------- */
-  function stageChart(host, models) {
-    const W = Math.max(320, Math.round(host.clientWidth || 760)), narrow = W < 520, H = narrow ? 300 : Math.round(Math.min(420, Math.max(320, W * 0.4))), m = { l: 40, r: narrow ? 118 : 160, t: 16, b: 46 };
-    const iw = W - m.l - m.r, ih = H - m.t - m.b;
-    const xs = (i) => m.l + (iw * i) / 3, ys = (v) => m.t + ih * (1 - v / 100);
-    const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}` });
-    const grid = svgEl("g", { class: "grid" });
-    [0, 25, 50, 75, 100].forEach((v) => {
-      grid.append(svgEl("line", { x1: m.l, x2: m.l + iw, y1: ys(v), y2: ys(v) }));
-      const t = svgEl("text", { x: m.l - 12, y: ys(v) + 4, "text-anchor": "end" }); t.textContent = v + "%"; grid.append(t);
-    });
-    (narrow ? ["Sim", "+Synth", "+STA", "+PnR"] : ["RTL sim", "+ Synth / gate", "+ STA / CDC", "+ Layout"]).forEach((s, i) => {
-      grid.append(svgEl("line", { x1: xs(i), x2: xs(i), y1: m.t, y2: m.t + ih, "stroke-dasharray": "2 4" }));
-      const t = svgEl("text", { x: xs(i), y: H - 16, "text-anchor": "middle" }); t.textContent = s; grid.append(t);
-    });
-    svg.append(grid);
-    const labelsY = models.map((mm) => ys(+pct(mm.stages[3])));
-    for (let pass = 0; pass < 30; pass++) for (let i = 1; i < labelsY.length; i++) {
-      if (labelsY[i] - labelsY[i - 1] < 16) { const d = (16 - (labelsY[i] - labelsY[i - 1])) / 2; labelsY[i - 1] -= d; labelsY[i] += d; }
-    }
-    models.forEach((mm, k) => {
-      const pts = mm.stages.map((v, i) => [xs(i), ys(+pct(v))]);
-      const path = svgEl("path", { d: "M" + pts.map((p) => p.join(",")).join("L"), fill: "none", stroke: MODEL_COLORS[k], "stroke-width": 2, "stroke-linejoin": "round", class: "ln" });
-      const len = 1200; path.style.strokeDasharray = len; path.style.strokeDashoffset = len;
-      path.style.transition = `stroke-dashoffset 1.6s cubic-bezier(.2,.7,.1,1) ${k * 0.1}s`;
-      svg.append(path);
-      pts.forEach((p, i) => {
-        const c = svgEl("circle", { cx: p[0], cy: p[1], r: 3.6, fill: "#0d0d10", stroke: MODEL_COLORS[k], "stroke-width": 1.6 });
-        c.addEventListener("mouseenter", (e) => showTip(`<div class="t-title" style="margin-top:0">${esc(mm.name)}</div>Stage ${i + 1}: <b style="color:var(--fg)">${pct(mm.stages[i])}%</b> <span class="faint">(${mm.stages[i]}/94)</span>`, e));
-        c.addEventListener("mousemove", moveTip); c.addEventListener("mouseleave", hideTip);
-        svg.append(c);
-      });
-      const lab = svgEl("text", { x: xs(3) + 14, y: labelsY[k] + 4, fill: MODEL_COLORS[k], style: `fill:${MODEL_COLORS[k]};font-family:var(--sans);font-size:12.5px` });
-      lab.textContent = `${SHORT[k]}  ${pct(mm.stages[3])}`;
-      svg.append(lab);
-    });
-    host.append(svg);
-    whenVisible(host, () => $$(".ln", svg).forEach((p) => (p.style.strokeDashoffset = 0)));
-  }
-
   function hbars(host, rows, { max, color = "#d6b27a", fmt = (v) => v, unit = "" } = {}) {
     const mx = max || Math.max(...rows.map((r) => r[1]));
     host.innerHTML = `<div style="display:grid;gap:14px">${rows.map((r) => `
@@ -410,72 +364,30 @@
     host.append(svg);
   }
 
-  function heatColor(v) {
-    const a = 0.06 + 0.5 * Math.pow(v / 100, 1.5);
-    return `background:rgba(214,178,122,${a.toFixed(3)});color:${v >= 70 ? "#f6ead2" : v >= 35 ? "var(--fg)" : "var(--fg-2)"}`;
-  }
-
   /* ---------------- Leaderboard page ---------------- */
   async function leaderboardPage() {
     const host = $("#lb-table");
     if (!host) return;
-    const { models, summary } = await load("leaderboard");
-    const types = ["pt1", "pt2", "pt3", "pt4", "pt5"];
-    const agent = (m) => `<div class="agent-cell"><span class="name">${esc(m.name)}</span><span class="meta">${esc(m.org)} <span class="tag ${m.access === "open" ? "open" : "prop"}">${m.access === "open" ? "Open" : "Prop."}</span></span></div>`;
-    const frac = (k, n) => `${pct(k, n)}%<span class="of">${k}/${n}</span>`;
-    const views = {
-      overall: {
-        cols: [["#", ""], ["Agent", ""], ["Pass rate", "all 94 tasks"], ["RTL only", "n = 70"], ["RTL + constraints", "n = 24"], ["≥ 4 files", "n = 29"]],
-        row: (m, i) => [i + 1, agent(m), m.pass, m.rtl_only, m.joint, m.multi4],
-        cell: (v, c, m) => c === 2 ? `<span class="cell-bar"><span class="bar ${m.access === "open" ? "open" : ""}"><i style="width:${pct(v)}%"></i></span><span class="hero-num">${pct(v)}%</span></span>`
-          : frac(v, [0, 0, 94, 70, 24, 29][c]),
-      },
-      stages: {
-        cols: [["#", ""], ["Agent", ""], ["1 · RTL sim", "94 checked"], ["2 · + Synth / gate", "85 checked"], ["3 · + STA / CDC", "81 checked"], ["4 · + Layout", "15 checked"], ["Drop", "after RTL sim"]],
-        row: (m, i) => [i + 1, agent(m), ...m.stages, m.stages[0] - m.stages[3]],
-        cell: (v, c) => c === 6 ? `<span style="color:var(--fail)">−${pct(v)} pp</span>` : frac(v, 94),
-      },
-      types: {
-        cols: [["#", ""], ["Agent", ""], ...types.map((t) => [summary.type_labels[t].replace(" & ", " & "), `n = ${summary.type_counts[t]}`])],
-        row: (m, i) => [i + 1, agent(m), ...types.map((t) => m.types[t])],
-        cell: (v, c) => { const n = summary.type_counts[types[c - 2]], p = +pct(v, n); return `<span class="heat" style="${heatColor(p)}">${p.toFixed(1)}%</span>`; },
-      },
-      behavior: {
-        cols: [["#", ""], ["Agent", ""], ["Tool calls", "median"], ["Tool calls", "mean"], ["Unproductive calls", "mean · share"], ["Runs attempting hacks", "of 94"], ["Hacks succeeded", ""]],
-        row: (m, i) => [i + 1, agent(m), m.tool_calls_median, m.tool_calls_mean, m.unproductive_mean, m.hack_runs, m.hack_success],
-        cell: (v, c, m) => c === 4 ? `${v.toFixed(1)}<span class="of">${m.unproductive_share}%</span>` : c === 5 ? `${pct(v)}%<span class="of">${v}/94</span>` : c === 6 ? `<span style="color:var(--pass)">${v}</span>` : v.toFixed(1),
-      },
-    };
-    let view = "overall", sortCol = 2, dir = -1;
+    const { models } = await load("leaderboard");
+    const cols = [["#", ""], ["Agent", ""], ["Pass rate", "94 tasks"], ["Tool calls", "median"], ["Hacking", "runs attempted"], ["Hacks", "succeeded"]];
+    const val = (m, c) => [0, 0, m.pass, m.tool_calls_median, m.hack_runs, m.hack_success][c];
+    let sortCol = 2, dir = -1;
     function render() {
-      const V = views[view];
-      let rows = models.map((m, i) => ({ m, r: V.row(m, i) }));
-      if (sortCol > 1) rows.sort((a, b) => dir * (a.r[sortCol] - b.r[sortCol]));
-      host.innerHTML = `<table class="data"><thead><tr>${V.cols.map((c, i) => `<th data-c="${i}" class="${i === sortCol ? "sorted" : ""}">${c[0]}${i === sortCol ? (dir < 0 ? " ↓" : " ↑") : ""}${c[1] ? `<span class="sub">${c[1]}</span>` : ""}</th>`).join("")}</tr></thead>
-        <tbody>${rows.map(({ m, r }) => `<tr>${r.map((v, c) => `<td class="${c > 1 ? "num" : ""}">${c === 0 ? `<span class="rank-badge">${String(models.indexOf(m) + 1).padStart(2, "0")}</span>` : c === 1 ? v : V.cell(v, c, m)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+      const rows = [...models].sort((a, b) => dir * (val(a, sortCol) - val(b, sortCol)));
+      host.innerHTML = `<table class="data"><thead><tr>${cols.map((c, i) => `<th data-c="${i}" class="${i === sortCol ? "sorted" : ""}">${c[0]}${i === sortCol ? (dir < 0 ? " ↓" : " ↑") : ""}${c[1] ? `<span class="sub">${c[1]}</span>` : ""}</th>`).join("")}</tr></thead><tbody>${rows.map((m) => `<tr>
+        <td><span class="rank-badge">${String(models.indexOf(m) + 1).padStart(2, "0")}</span></td>
+        <td><div class="agent-cell"><span class="name">${esc(m.name)}</span><span class="meta">${esc(m.org)} <span class="tag ${m.access === "open" ? "open" : "prop"}">${m.access === "open" ? "Open weights" : "Proprietary"}</span></span></div></td>
+        <td class="num"><span class="cell-bar"><span class="bar ${m.access === "open" ? "open" : ""}"><i style="width:${pct(m.pass)}%"></i></span><span class="hero-num">${pct(m.pass)}%</span><span class="of">${m.pass}/94</span></span></td>
+        <td class="num">${m.tool_calls_median.toFixed(1)}</td>
+        <td class="num">${pct(m.hack_runs)}%<span class="of">${m.hack_runs}/94</span></td>
+        <td class="num" style="color:var(--pass)">${m.hack_success}</td></tr>`).join("")}</tbody></table>`;
     }
     host.addEventListener("click", (e) => {
       const th = e.target.closest("th"); if (!th) return;
       const c = +th.dataset.c; if (c < 2) return;
       dir = c === sortCol ? -dir : -1; sortCol = c; render();
     });
-    $("#lb-tabs").addEventListener("click", (e) => {
-      const b = e.target.closest(".tab"); if (!b) return;
-      $$(".tab", $("#lb-tabs")).forEach((t) => t.classList.toggle("on", t === b));
-      view = b.dataset.v; sortCol = 2; dir = -1; render();
-      $("#lb-note").textContent = notes[view];
-    });
-    const notes = {
-      overall: "Pass rate: share of tasks where the submission passes every required check in the isolated verifier, within the time budget. RTL + constraints: tasks that also require editing .sdc timing constraints or hard-SRAM floorplans.",
-      stages: "Cumulative: a task counts at stage k only if it passes every applicable check up to k. Tasks that do not require a stage carry over their previous result.",
-      types: "Five mutually exclusive problem types. Cells show pass rate within each type.",
-      behavior: "From all 564 trajectories (46,526 tool calls). Unproductive calls: repeated commands, undone edits and loops. No hacking attempt passed the verifier.",
-    };
-    $("#lb-note").textContent = notes.overall;
     render();
-    stageChart($("#stage-chart"), models);
-    const legend = $("#stage-legend");
-    if (legend) legend.innerHTML = models.map((m, k) => `<span><i style="background:${MODEL_COLORS[k]}"></i>${esc(m.name)}</span>`).join("");
     matrix();
   }
 
@@ -499,8 +411,7 @@
     const host = $("#tasks");
     if (!host) return;
     const [tasks, { models, summary }] = await Promise.all([load("tasks"), load("leaderboard")]);
-    const stageNames = { 1: "RTL & Sim", 2: "Synth & Gate", 3: "STA & CDC", 4: "Layout" };
-    const state = { q: "", stage: "all", type: "all", solved: "all", repo: "all" };
+    const state = { q: "", type: "all", solved: "all", repo: "all" };
     const chips = (id, opts) => {
       const n = $(id);
       n.insertAdjacentHTML("beforeend", opts.map(([v, l], i) => `<button class="chip ${i === 0 ? "on" : ""}" data-v="${v}">${l}</button>`).join(""));
@@ -510,7 +421,6 @@
         state[n.dataset.key] = b.dataset.v; render();
       });
     };
-    chips("#f-stage", [["all", "All"], ...[1, 2, 3, 4].map((s) => [s, `${s} · ${stageNames[s]}`])]);
     chips("#f-type", [["all", "All"], ...Object.entries(summary.type_labels).map(([k, v]) => [k, v])]);
     chips("#f-solved", [["all", "All"], ["none", "Unsolved by all"], ["hard", "Solved by 1–2"], ["every", "Solved by all six"]]);
     const repoSel = $("#f-repo");
@@ -523,7 +433,6 @@
     function render() {
       const list = tasks.filter((t) => {
         const k = t.pass.reduce((a, b) => a + b, 0);
-        if (state.stage !== "all" && String(t.stage) !== state.stage) return false;
         if (state.type !== "all" && t.type !== state.type) return false;
         if (state.repo !== "all" && t.repo !== state.repo) return false;
         if (state.solved === "none" && k !== 0) return false;
@@ -539,7 +448,7 @@
           <div class="top"><span class="id">${t.id}</span><span class="solved">${k}/6 solved</span></div>
           <h3>${esc(t.title)}</h3>
           <div class="repo">${esc(t.repo)}</div>
-          <div class="tags"><span>Stage ${t.stage} · ${stageNames[t.stage]}</span><span>${esc(summary.type_labels[t.type])}</span></div>
+          <div class="tags"><span>${esc(summary.type_labels[t.type])}</span></div>
           <div class="bottom"><span class="size">${t.files} files · ${t.loc.toLocaleString()} LOC · ${t.editable.length} editable</span>${dotsHTML(t.pass, models)}</div>
         </a>`;
       }).join("") : `<div class="empty">No tasks match these filters.</div>`;
@@ -552,22 +461,13 @@
   async function article() {
     if (document.body.dataset.page !== "post") return;
     const { models, summary } = await load("leaderboard");
-    const sc = $("#post-stage-chart"); if (sc) stageChart(sc, models);
-    const lg = $("#post-stage-legend"); if (lg) lg.innerHTML = models.map((m, k) => `<span><i style="background:${MODEL_COLORS[k]}"></i>${esc(m.name)}</span>`).join("");
     const pb = $("#post-pass-bars");
     if (pb) hbars(pb, models.map((m, k) => [m.name, +pct(m.pass), MODEL_COLORS[k]]), { max: 100, unit: "%", fmt: (v) => v.toFixed(1) });
     const tb = $("#post-type-bars");
     if (tb) hbars(tb, Object.entries(summary.type_counts).map(([k, v]) => [summary.type_labels[k], v]), { max: 40 });
-    const db = $("#post-domain-bars");
-    if (db) hbars(db, summary.domains, { max: 25, color: "#8fa3bd" });
     const sp = $("#post-scatter"); if (sp) scatterChart(sp, models);
     const hb = $("#post-hack-bars");
     if (hb) hbars(hb, models.map((m, k) => [m.name, +pct(m.hack_runs), MODEL_COLORS[k]]), { max: 40, unit: "%", fmt: (v) => v.toFixed(1) });
-    const tt = $("#post-type-table");
-    if (tt) {
-      const types = ["pt1", "pt2", "pt3", "pt4", "pt5"];
-      tt.innerHTML = `<table class="data compact"><thead><tr><th>Problem type</th><th style="text-align:left">n</th>${models.map((m, k) => `<th style="text-align:center">${SHORT[k].replace("-V4.1", "")}</th>`).join("")}</tr></thead><tbody>${types.map((t) => `<tr><td style="text-align:left;color:var(--fg)">${esc(summary.type_labels[t])}</td><td class="num" style="text-align:left">${summary.type_counts[t]}</td>${models.map((m) => { const p = +pct(m.types[t], summary.type_counts[t]); return `<td style="text-align:center"><span class="heat" style="${heatColor(p)}">${p.toFixed(1)}</span></td>`; }).join("")}</tr>`).join("")}</tbody></table>`;
-    }
     // TOC scrollspy
     const toc = $(".toc");
     if (toc) {
@@ -596,7 +496,7 @@
     copyButtons();
     wafer();
     homeLeaderboard();
-    homeReleasesPosts();
+    homePosts();
     blogIndex();
     leaderboardPage();
     explorer();

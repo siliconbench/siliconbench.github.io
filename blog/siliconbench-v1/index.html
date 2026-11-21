@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SiliconBench v1.0: Can agents engineer real silicon? — SiliconBench</title>
-  <meta name="description" content="94 front-to-back chip engineering tasks, six frontier agents, 564 runs. What passes, what breaks after simulation, and why no hack got through.">
+  <meta name="description" content="Six frontier agents on 94 chip engineering tasks: pass rate, tool use and evaluation hacking.">
   <meta property="og:title" content="SiliconBench v1.0: Can agents engineer real silicon?">
   <meta property="og:description" content="94 front-to-back chip engineering tasks, six frontier agents, 564 runs.">
   <meta property="og:image" content="https://siliconbench.github.io/assets/img/og.png">
@@ -21,7 +21,7 @@
 
 <header class="article-head page-head" style="padding-bottom:56px">
   <div class="narrow">
-    <span class="eyebrow reveal"><span class="dot"></span>Release · Nov 2026 · 8 min read</span>
+    <span class="eyebrow reveal"><span class="dot"></span>Nov 2026 · 6 min read</span>
     <h1 class="display reveal d1">SiliconBench v1.0: Can agents engineer <em>real silicon?</em></h1>
     <div class="byline reveal d2">
       <span><b>Shang Liu, Wenji Fang, Jing Wang, Ziyan Guo, Yao Lu, Zhiyao Xie</b></span>
@@ -42,9 +42,9 @@
     <div class="tldr reveal">
       <div class="eyebrow">TL;DR</div>
       <ul>
-        <li>94 real chip engineering tasks, graded on simulation, synthesis, timing and layout, not simulation alone.</li>
+        <li>94 chip engineering tasks from 30 open-source repositories, graded from RTL simulation to layout.</li>
         <li>Claude Opus 5.5 passes 84.0%. The best open-weights agent, GLM-5.3, passes 33.0%.</li>
-        <li>21.3% of failed runs pass RTL simulation and then fail a downstream check.</li>
+        <li>Open-weights agents use 2–3× more tool calls per task.</li>
         <li>Agents attempted to hack the grader in 53 of 564 runs. None succeeded.</li>
       </ul>
     </div>
@@ -52,7 +52,7 @@
     <h2 id="why" data-toc="Why SiliconBench"><span class="no">01</span>Why another hardware benchmark?</h2>
     <p>Agents now report 95–99% on standard RTL benchmarks. Real chip engineering is far from solved. The gap is in what those benchmarks leave out:</p>
     <ul>
-      <li><strong>Single-stage grading.</strong> Most check functional simulation only. Synthesis and layout appear only on small, standalone modules.</li>
+      <li><strong>Simulation-only grading.</strong> Most check functional simulation only. Synthesis and layout appear only on small, standalone modules.</li>
       <li><strong>Isolated edits.</strong> Agents fix RTL under frozen constraints, or tune scripts on frozen RTL. Real designers change both together.</li>
       <li><strong>Hackable grading.</strong> When the agent and the grader share a workspace, an agent can look for reference answers, weaken a testbench, or hide logic from synthesis.</li>
     </ul>
@@ -69,17 +69,8 @@
       </div>
     </figure>
 
-    <p>Tasks span seven hardware domains, from network and DMA engines to vector accelerators and crypto cores:</p>
 
-    <figure class="figure reveal">
-      <div class="chart-card">
-        <h3>Seven hardware domains</h3>
-        <p class="sub">Number of tasks per domain</p>
-        <div id="post-domain-bars"></div>
-      </div>
-    </figure>
-
-    <p>Every task runs functional simulation. Most go further: 85 add synthesis and gate-level checks, 81 add static timing or CDC/RDC, and 15 require hard-SRAM floorplanning, clock-tree synthesis and routing. In 24 tasks, the agent must edit timing constraints (<code>.sdc</code>) or macro floorplans along with the RTL.</p>
+    <p>Depending on the task, the verifier runs functional simulation, synthesis, gate-level simulation, static timing and physical design checks. A task passes only if all of them pass.</p>
 
     <h2 id="harbor" data-toc="Isolated grading"><span class="no">03</span>Grading the agent cannot touch</h2>
     <p>We use the two-container <a href="https://github.com/laude-institute/harbor" target="_blank" rel="noopener">Harbor</a> architecture. The agent never shares a filesystem with the grader.</p>
@@ -120,23 +111,8 @@
       </div>
     </figure>
 
-    <p>The ranking is clear, and so is the gap: proprietary agents pass 40.4–84.0%; open-weights agents pass 27.7–33.0%. The gap grows when RTL and constraints must change together. Claude Opus 5.5 keeps 79.2% on those 24 tasks; GLM-5.3 drops to 4.2%.</p>
+    <p>Proprietary agents pass 40.4–84.0% of tasks; open-weights agents pass 27.7–33.0%.</p>
 
-    <figure class="figure wide reveal">
-      <div class="chart-card">
-        <h3>Passing simulation is not passing</h3>
-        <p class="sub">Cumulative pass rate as each EDA stage is added</p>
-        <div class="chart" id="post-stage-chart"></div>
-      </div>
-      <figcaption>Claude Opus 5.5 loses 2.2 points after RTL simulation; DeepSeek-V4.1-Flash-1017 loses 12.7. Across all agents, <b>21.3% of failed runs pass RTL simulation</b> and then fail synthesis, timing or layout.</figcaption>
-    </figure>
-
-    <p>Results by problem type show where agents struggle most. Bug repair in an intact design is easiest. New features and physical co-design are hardest: on the eight hard-SRAM tasks, DeepSeek-V4.1-Flash-1017 solves none.</p>
-
-    <figure class="figure wide reveal">
-      <div class="table-wrap" id="post-type-table"></div>
-      <figcaption>Pass rate (%) by problem type.</figcaption>
-    </figure>
 
     <h2 id="behavior" data-toc="How agents work"><span class="no">06</span>How agents work</h2>
     <p>We analyzed all 46,526 tool calls. Three distinct styles emerge.</p>
@@ -152,7 +128,7 @@
     <ul>
       <li><strong>Test first, then verify downstream (Claude Opus 5.5).</strong> On 64.9% of tasks it runs its own testbench on the original RTL to confirm the test catches the bug. It then updates connected modules and reads synthesis, timing and layout reports before finishing.</li>
       <li><strong>Trial and error (GLM-5.3, DeepSeek-V4.1-Flash-1017).</strong> 122–136 median calls per task. DeepSeek checks its testbench against the original RTL on only 20.2% of tasks. GLM and DeepSeek spend 33.3% and 30.9% of calls fixing their own broken testbenches, resolving compile errors or repeating failed edits.</li>
-      <li><strong>Stopping early (GPT-Sol 6.1, GPT-Terra 6.1).</strong> 37.5–44.5 median calls. In about 20% of runs they edit RTL after their last simulation and never re-test, and they skip gate-level simulation on over 55% of applicable tasks.</li>
+      <li><strong>Stopping early (GPT-Sol 6.1, GPT-Terra 6.1).</strong> 37.5–44.5 median calls. In about 20% of runs they edit RTL after their last simulation and never re-test.</li>
     </ul>
 
     <h2 id="failures" data-toc="Why agents fail"><span class="no">07</span>Why agents fail</h2>
@@ -186,7 +162,6 @@
       <li><strong>Hiding logic from synthesis (3 files, 2 runs).</strong> On the Ara vector divider, GPT-Sol 6.1 and GPT-Terra 6.1 wrapped logic in <code>`ifndef SYNTHESIS</code>, so the simulator and synthesizer see different circuits. The verifier's policy check and gate-level simulation reject it.</li>
       <li><strong>Forging a timestamp (1 event).</strong> After editing and reverting a read-only wrapper, GPT-Terra 6.1 ran <code>touch -d</code> to restore its timestamp. Harbor copies only hash-verified, allowlisted files, so this has no effect.</li>
     </ul>
-    <blockquote>As agents get stronger, a benchmark is only as good as the wall between the agent and the grader.</blockquote>
 
     <h2 id="cases" data-toc="Case studies"><span class="no">09</span>Four case studies</h2>
     <div class="cases reveal">
@@ -200,9 +175,6 @@
       <figcaption>Paper figure: what failing and passing agents did in each case.</figcaption>
     </figure>
 
-    <h2 id="next" data-toc="What is next"><span class="no">10</span>What is next</h2>
-    <p>SiliconBench is a living benchmark. We will add releases as agents improve and publish every task, grader and trajectory format, so others can reproduce our numbers or prove us wrong. If you build hardware agents, <a href="https://github.com/siliconbench/SiliconBench-v1.0" target="_blank" rel="noopener">run the benchmark</a> and send us your results.</p>
-    <p>Open-weights models trail by a wide margin today. We hope an open, trustworthy benchmark helps close that gap.</p>
 
     <h3>Citation</h3>
     <div class="cite" style="margin-top:16px">

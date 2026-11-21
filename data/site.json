@@ -1,37 +1,10 @@
 {
-  "releases": [
-    {
-      "id": "v1.0",
-      "name": "SiliconBench v1.0",
-      "status": "live",
-      "statusLabel": "Live · Nov 2026",
-      "blurb": "94 repository-level tasks from 30 open-source SystemVerilog projects, graded front to back: simulation, synthesis, timing and layout.",
-      "facts": [["94", "tasks"], ["30", "repositories"], ["6", "agents evaluated"]],
-      "href": "/leaderboard/"
-    },
-    {
-      "id": "verified",
-      "name": "SiliconBench Verified",
-      "status": "planned",
-      "statusLabel": "Planned",
-      "blurb": "An expert-validated split for low-noise comparison between agents.",
-      "facts": [["—", "in preparation"]]
-    },
-    {
-      "id": "pro",
-      "name": "SiliconBench Pro",
-      "status": "planned",
-      "statusLabel": "Planned",
-      "blurb": "Larger designs and tighter targets, for agents that already clear v1.0.",
-      "facts": [["—", "in preparation"]]
-    }
-  ],
   "posts": [
     {
       "slug": "siliconbench-v1",
       "date": "Nov 2026",
       "title": "SiliconBench v1.0: Can agents engineer real silicon?",
-      "summary": "Why passing simulation is not enough, how far open-weights agents trail, and what happened when agents tried to game the grader.",
+      "summary": "Six frontier agents on 94 chip engineering tasks: pass rate, tool use and evaluation hacking.",
       "href": "/blog/siliconbench-v1/"
     }
   ]
